@@ -1,2 +1,8 @@
-<h1>Welcome to SvelteKit</h1>
-<p>Visit <a href="https://kit.svelte.dev">kit.svelte.dev</a> to read the documentation</p>
+<h1>AMP 2024 Demos</h1>
+
+<ul>
+  <li>
+    <a href="/rects_in_color">Challenge 2.something: Random Rectangles</a>
+  </li>
+  <li><a href="/black_corners">Challenge 4.1: Black Corners</a></li>
+</ul>
