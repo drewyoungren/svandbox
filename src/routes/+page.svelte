@@ -1,8 +1,9 @@
-<h1>AMP 2024 Demos</h1>
+<script>
+  import { base } from '$app/paths';
+</script>
+
+<h1>Experiments in lame webapps</h1>
 
 <ul>
-  <li>
-    <a href="/rects_in_color">Challenge 2.something: Random Rectangles</a>
-  </li>
-  <li><a href="/black_corners">Challenge 4.1: Black Corners</a></li>
+  <li><a href="{base}/amp2024">AMP 2024</a></li>
 </ul>
