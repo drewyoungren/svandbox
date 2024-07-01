@@ -13,12 +13,12 @@
    * @type Array<Array<Element>>
    */
   const grid = [[], [], []];
-  for (let i = 0; i < 3; i++) {
-    for (let j = 0; j < 7; j++) {
-      // Garbage element replaced later
-      grid[i].push(document.createElement('a'));
-    }
-  }
+  // for (let i = 0; i < 3; i++) {
+  //   for (let j = 0; j < 7; j++) {
+  //     // Garbage element replaced later
+  //     grid[i].push('');
+  //   }
+  // }
 
   /**
    * @type Array<Array<Boolean>>

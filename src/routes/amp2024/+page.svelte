@@ -6,9 +6,9 @@
 
 <ul>
   <li>
-    <a href="{base}/amp2024/rects_in_color">Challenge 2.3: Random Rectangles</a>
+    <a href="rects_in_color">Challenge 2.3: Random Rectangles</a>
   </li>
   <li>
-    <a href="{base}/amp2024/black_corners">Challenge 4.1: Black Corners</a>
+    <a href="black_corners">Challenge 4.1: Black Corners</a>
   </li>
 </ul>
