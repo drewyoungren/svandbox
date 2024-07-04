@@ -1,4 +1,6 @@
 <script>
+  import { onMount } from 'svelte';
+
   /**
    * @type Element
    */
@@ -6,15 +8,17 @@
 
   let shiftDown = false;
 
-  document.addEventListener('keydown', (e) => {
-    if (e.key == 'Shift') {
-      shiftDown = true;
-    }
-  });
-  document.addEventListener('keyup', (e) => {
-    if (e.key == 'Shift') {
-      shiftDown = false;
-    }
+  onMount(() => {
+    document.addEventListener('keydown', (e) => {
+      if (e.key == 'Shift') {
+        shiftDown = true;
+      }
+    });
+    document.addEventListener('keyup', (e) => {
+      if (e.key == 'Shift') {
+        shiftDown = false;
+      }
+    });
   });
 
   /**
@@ -82,9 +86,9 @@
   switch.
 </p>
 
-<button on:click={() => (shiftDown = !shiftDown)}
-  >{shiftDown ? 'Column' : 'Row'}</button
->
+<button on:click={() => (shiftDown = !shiftDown)}>
+  {shiftDown ? 'Column' : 'Row'}
+</button>
 
 <div id="checker" bind:this={checker}>
   {#each [0, 1, 2, 3, 4, 5, 6, 7] as i}
