@@ -2,6 +2,9 @@
 
 <ul>
   <li>
+    <a href="stripping">Challenge 2.4: Infinite Strip</a>
+  </li>
+  <li>
     <a href="5477">Challenge 2.5: 54/77</a>
   </li>
   <li>
