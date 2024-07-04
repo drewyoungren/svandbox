@@ -14,4 +14,7 @@
   <li>
     <a href="black_corners">Challenge 4.1: Black Corners</a>
   </li>
+  <li>
+    <a href="zap">Challenge 4.5: Zap It!</a>
+  </li>
 </ul>
