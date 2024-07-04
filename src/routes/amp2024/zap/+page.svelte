@@ -11,9 +11,9 @@
   let dispY = tweened(1);
   let dispZ = tweened(4);
 
-  $: dispX.set(status[0]);
-  $: dispY.set(status[1]);
-  $: dispZ.set(status[2]);
+  $: dispX.set(status[0] || 0);
+  $: dispY.set(status[1] || 0);
+  $: dispZ.set(status[2] || 0);
 
   /**
    * @type Array<Number>
@@ -52,7 +52,7 @@
 
 <p>
   Select two numbers to "zap" them, i.e., reduce each by the average. Can you
-  get to 0?
+  get to an average of 0?
 </p>
 
 <div class="number_holder">
@@ -85,7 +85,7 @@
 </div>
 
 <div>
-  Average: {Math.round((1000 * status.reduce((a, b) => a + b)) / 3) / 1000}
+  Average: {status.reduce((a, b) => a + b) / 3}
 </div>
 
 <div>
@@ -111,8 +111,8 @@
     display: flex;
     justify-content: space-around;
     height: 100px;
-    width: 40%;
-    left: 25%;
+    width: 100%;
+    max-width: 600px;
   }
 
   .active {

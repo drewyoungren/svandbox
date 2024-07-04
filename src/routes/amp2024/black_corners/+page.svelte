@@ -4,6 +4,19 @@
    */
   let checker;
 
+  let shiftDown = false;
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key == 'Shift') {
+      shiftDown = true;
+    }
+  });
+  document.addEventListener('keyup', (e) => {
+    if (e.key == 'Shift') {
+      shiftDown = false;
+    }
+  });
+
   /**
    * @type Array<Array<Boolean>>
    */
@@ -51,7 +64,7 @@
     for (let el of els) {
       const row = Number(el.id[5]);
       const col = Number(el.id[6]);
-      if (e.shiftKey) {
+      if (e.shiftKey || shiftDown) {
         if (col == j) {
           color[row][col] = !color[row][col];
         }
@@ -65,8 +78,13 @@
 <h1>Challenge 4.1</h1>
 <p>
   Can you get back to one color by swapping every tile in a row <kbd>Click</kbd>
-  or a column <kbd>Shift</kbd>+<kbd>Click</kbd>.
+  or a column <kbd>Shift</kbd>+<kbd>Click</kbd>. You can also use the button to
+  switch.
 </p>
+
+<button on:click={() => (shiftDown = !shiftDown)}
+  >{shiftDown ? 'Column' : 'Row'}</button
+>
 
 <div id="checker" bind:this={checker}>
   {#each [0, 1, 2, 3, 4, 5, 6, 7] as i}
