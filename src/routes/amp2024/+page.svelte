@@ -6,7 +6,10 @@
 
 <ul>
   <li>
-    <a href="rects_in_color">Challenge 2.3: Random Rectangles</a>
+    <a href="5477">Challenge 2.5: 54/77</a>
+  </li>
+  <li>
+    <a href="rects_in_color">Challenge 3.3: Random Rectangles</a>
   </li>
   <li>
     <a href="black_corners">Challenge 4.1: Black Corners</a>
