@@ -126,7 +126,7 @@
     font-size: xx-large;
     padding: 0.4em;
     border-radius: 10px;
-    width: 30%;
+    min-width: 30%;
   }
   .customInput {
     width: 100px;

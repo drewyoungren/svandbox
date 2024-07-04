@@ -1,7 +1,3 @@
-<script>
-  import { base } from '$app/paths';
-</script>
-
 <h1>AMP 2024 Demos</h1>
 
 <ul>
