@@ -2,14 +2,19 @@
   import katex from 'katex';
   import { fade, slide } from 'svelte/transition';
   import Fraction from 'fraction.js';
+  import { tweened } from 'svelte/motion';
   // @ts-nocheck
 
   let status = [new Fraction(3), new Fraction(1), new Fraction(4)];
   let customStatus = false;
 
-  $: dispX = (status[0].s * status[0].n) / status[0].d;
-  $: dispY = (status[1].s * status[1].n) / status[1].d;
-  $: dispZ = (status[2].s * status[2].n) / status[2].d;
+  let dispX = tweened(3, { duration: 400 });
+  let dispY = tweened(1, { duration: 400 });
+  let dispZ = tweened(4, { duration: 400 });
+
+  $: dispX.set((status[0].s * status[0].n) / status[0].d);
+  $: dispY.set((status[1].s * status[1].n) / status[1].d);
+  $: dispZ.set((status[2].s * status[2].n) / status[2].d);
 
   /**
    * @type Element
@@ -181,23 +186,23 @@
       <rect
         width="80"
         x="10"
-        y={dispX > 0 ? 150 - dispX * 20 : 150}
-        height={Math.abs(dispX * 20)}
-        fill={dispX > 0 ? 'green' : 'red'}
+        y={$dispX > 0 ? 150 - $dispX * 20 : 150}
+        height={Math.abs($dispX * 20)}
+        fill={$dispX > 0 ? 'green' : 'red'}
       />
       <rect
         width="80"
         x="110"
-        y={dispY > 0 ? 150 - dispY * 20 : 150}
-        height={Math.abs(dispY * 20)}
-        fill={dispY > 0 ? 'green' : 'red'}
+        y={$dispY > 0 ? 150 - $dispY * 20 : 150}
+        height={Math.abs($dispY * 20)}
+        fill={$dispY > 0 ? 'green' : 'red'}
       />
       <rect
         width="80"
         x="210"
-        y={dispZ > 0 ? 150 - dispZ * 20 : 150}
-        height={Math.abs(dispZ * 20)}
-        fill={dispZ > 0 ? 'green' : 'red'}
+        y={$dispZ > 0 ? 150 - $dispZ * 20 : 150}
+        height={Math.abs($dispZ * 20)}
+        fill={$dispZ > 0 ? 'green' : 'red'}
       />
 
       <line x1="0" x2="300" y1="150" y2="150" stroke="black" />
