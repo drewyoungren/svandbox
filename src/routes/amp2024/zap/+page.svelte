@@ -238,7 +238,7 @@
 </svg>
 
 <div style="margin: 0.5rem;">
-  Average: {@html pprint(status.reduce((a, b) => a.add(b)).div(3))}
+  Average: {status.reduce((a, b) => a.add(b)).div(3)}
 </div>
 
 <div>
