@@ -1,5 +1,5 @@
 <script>
-  import { tweened } from 'svelte/motion';
+  import katex from 'katex';
   import { fade, slide } from 'svelte/transition';
   import Fraction from 'fraction.js';
   // @ts-nocheck
@@ -7,18 +7,41 @@
   let status = [new Fraction(3), new Fraction(1), new Fraction(4)];
   let customStatus = false;
 
-  $: dispX =
-    status[0].d == 1
-      ? (status[0].s * status[0].n).toString()
-      : (status[0].s * status[0].n).toString() + '/' + status[0].d.toString();
-  $: dispY =
-    status[1].d == 1
-      ? (status[1].s * status[1].n).toString()
-      : (status[1].s * status[1].n).toString() + '/' + status[1].d.toString();
-  $: dispZ =
-    status[2].d == 1
-      ? (status[2].s * status[2].n).toString()
-      : (status[2].s * status[2].n).toString() + '/' + status[2].d.toString();
+  $: dispX = (status[0].s * status[0].n) / status[0].d;
+  $: dispY = (status[1].s * status[1].n) / status[1].d;
+  $: dispZ = (status[2].s * status[2].n) / status[2].d;
+
+  /**
+   * @type Element
+   */
+  let nodeX;
+  /**
+   * @type Element
+   */
+  let nodeY;
+  /**
+   * @type Element
+   */
+  let nodeZ;
+
+  /**
+   * render rational number to node
+   * @param f {Fraction}
+   * @param node {Element}
+   */
+  function pprint(f) {
+    let s = f.s < 0 ? '-' : '';
+    if (f.d == 1) {
+      s += f.n.toString();
+    } else {
+      s += `\\frac\{${f.n}\}\{${f.d}\}`;
+    }
+    return katex.renderToString(s, { output: 'mathml' });
+  }
+
+  // $: nodeX && pprint(status[0], nodeX);
+  // $: pprint(status[1], nodeY);
+  // $: pprint(status[2], nodeZ);
 
   // $: dispX.set(status[0] || 0);
   // $: dispY.set(status[1] || 0);
@@ -72,9 +95,9 @@
     on:click={() => handleClick(0)}
   >
     {#key dispX}
-      <span in:fade={{ delay: 0, duration: 500 }}>
-        {dispX}
-      </span>
+      <div in:fade={{ delay: 0, duration: 500 }} bind:this={nodeX}>
+        {@html pprint(status[0])}
+      </div>
     {/key}
   </button>
 
@@ -85,9 +108,9 @@
     on:click={() => handleClick(1)}
   >
     {#key dispY}
-      <span in:fade={{ delay: 0, duration: 500 }}>
-        {dispY}
-      </span>
+      <div in:fade={{ delay: 0, duration: 500 }} bind:this={nodeX}>
+        {@html pprint(status[1])}
+      </div>
     {/key}
   </button>
 
@@ -98,51 +121,95 @@
     on:click={() => handleClick(2)}
   >
     {#key dispZ}
-      <span in:fade={{ delay: 0, duration: 500 }}>
-        {dispZ}
-      </span>
+      <div in:fade={{ delay: 0, duration: 500 }} bind:this={nodeX}>
+        {@html pprint(status[2])}
+      </div>
     {/key}
   </button>
 </div>
 
-<div>
-  Average: {status.reduce((a, b) => a.add(b)).div(3)}
-</div>
+<div id="controlbox">
+  <div>
+    <div style="margin: 0.5rem;">
+      Average: {@html pprint(status.reduce((a, b) => a.add(b)).div(3))}
+    </div>
 
-<div>
-  <button
-    on:click={() => {
-      status = [new Fraction(3), new Fraction(1), new Fraction(4)];
-    }}>Reset</button
-  >
-</div>
+    <div>
+      <button
+        on:click={() => {
+          status = [new Fraction(3), new Fraction(1), new Fraction(4)];
+        }}>Reset</button
+      >
+    </div>
 
-<p><input type="checkbox" bind:checked={customStatus} /> Customize input:</p>
-{#if customStatus}
-  <div transition:fade>
-    <input
-      class="customInput"
-      type="text"
-      on:change={(e) => {
-        status[0] = new Fraction(e.target?.value);
-      }}
-    />
-    <input
-      class="customInput"
-      type="text"
-      on:change={(e) => {
-        status[1] = new Fraction(e.target?.value);
-      }}
-    />
-    <input
-      class="customInput"
-      type="text"
-      on:change={(e) => {
-        status[2] = new Fraction(e.target?.value);
-      }}
-    />
+    <p>
+      <input type="checkbox" bind:checked={customStatus} /> Customize input:
+    </p>
+    {#if customStatus}
+      <div transition:fade>
+        <input
+          class="customInput"
+          type="text"
+          on:change={(e) => {
+            status[0] = new Fraction(e.target?.value);
+          }}
+        />
+        <input
+          class="customInput"
+          type="text"
+          on:change={(e) => {
+            status[1] = new Fraction(e.target?.value);
+          }}
+        />
+        <input
+          class="customInput"
+          type="text"
+          on:change={(e) => {
+            status[2] = new Fraction(e.target?.value);
+          }}
+        />
+      </div>
+    {/if}
   </div>
-{/if}
+  <div>
+    <svg
+      version="1.1"
+      width="300"
+      height="200"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <rect
+        width="80"
+        x="10"
+        y={dispX > 0 ? 150 - dispX * 20 : 150}
+        height={Math.abs(dispX * 20)}
+        fill={dispX > 0 ? 'green' : 'red'}
+      />
+      <rect
+        width="80"
+        x="110"
+        y={dispY > 0 ? 150 - dispY * 20 : 150}
+        height={Math.abs(dispY * 20)}
+        fill={dispY > 0 ? 'green' : 'red'}
+      />
+      <rect
+        width="80"
+        x="210"
+        y={dispZ > 0 ? 150 - dispZ * 20 : 150}
+        height={Math.abs(dispZ * 20)}
+        fill={dispZ > 0 ? 'green' : 'red'}
+      />
+
+      <line x1="0" x2="300" y1="150" y2="150" stroke="black" />
+
+      <!-- <circle cx="150" cy="100" r="80" fill="green" />
+
+      <text x="150" y="125" font-size="60" text-anchor="middle" fill="white"
+        >SVG</text
+      > -->
+    </svg>
+  </div>
+</div>
 
 <style>
   .number_holder {
@@ -171,5 +238,13 @@
     width: 100px;
     font-size: larger;
     text-align: center;
+  }
+
+  div#controlbox {
+    display: flex;
+    width: 800px;
+    max-width: 100%;
+    margin-top: 1rem;
+    justify-content: space-between;
   }
 </style>

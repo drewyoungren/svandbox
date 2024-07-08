@@ -21,6 +21,7 @@
 	},
 	"type": "module",
 	"dependencies": {
-		"fraction.js": "^4.3.7"
+		"fraction.js": "^4.3.7",
+		"katex": "^0.16.11"
 	}
 }
