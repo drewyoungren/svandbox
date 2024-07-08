@@ -133,88 +133,150 @@
   </button>
 </div>
 
-<div id="controlbox">
-  <div>
-    <div style="margin: 0.5rem;">
-      Average: {@html pprint(status.reduce((a, b) => a.add(b)).div(3))}
-    </div>
+<svg version="1.1" xmlns="http://www.w3.org/2000/svg">
+  <line x1="0" x2="100%" y1="100" y2="100" stroke="black" stroke-width="1" />
+  <rect
+    width="24%"
+    x="6%"
+    y={$dispX > 0 ? 100 - $dispX * 20 : 100}
+    height={Math.abs($dispX * 20)}
+    fill={$dispX > 0 ? 'green' : 'red'}
+  />
+  <rect
+    width="24%"
+    x="38%"
+    y={$dispY > 0 ? 100 - $dispY * 20 : 100}
+    height={Math.abs($dispY * 20)}
+    fill={$dispY > 0 ? 'green' : 'red'}
+  />
+  <rect
+    width="24%"
+    x="68%"
+    y={$dispZ > 0 ? 100 - $dispZ * 20 : 100}
+    height={Math.abs($dispZ * 20)}
+    fill={$dispZ > 0 ? 'green' : 'red'}
+  />
 
-    <div>
-      <button
-        on:click={() => {
-          status = [new Fraction(3), new Fraction(1), new Fraction(4)];
-        }}>Reset</button
-      >
-    </div>
+  <line
+    x1="00"
+    x2="100%"
+    y1="80"
+    y2="80"
+    stroke="gray"
+    stroke-width="1"
+    stroke-opacity="30%"
+  />
+  <line
+    x1="00"
+    x2="100%"
+    y1="60"
+    y2="60"
+    stroke="gray"
+    stroke-width="1"
+    stroke-opacity="30%"
+  />
+  <line
+    x1="00"
+    x2="100%"
+    y1="40"
+    y2="40"
+    stroke="gray"
+    stroke-width="1"
+    stroke-opacity="30%"
+  />
+  <line
+    x1="00"
+    x2="100%"
+    y1="20"
+    y2="20"
+    stroke="gray"
+    stroke-width="1"
+    stroke-opacity="30%"
+  />
+  <line
+    x1="00"
+    x2="100%"
+    y1="120"
+    y2="120"
+    stroke="gray"
+    stroke-width="1"
+    stroke-opacity="30%"
+  />
+  <line
+    x1="00"
+    x2="100%"
+    y1="140"
+    y2="140"
+    stroke="gray"
+    stroke-width="1"
+    stroke-opacity="30%"
+  />
+  <line
+    x1="00"
+    x2="100%"
+    y1="160"
+    y2="160"
+    stroke="gray"
+    stroke-width="1"
+    stroke-opacity="30%"
+  />
+  <line
+    x1="00"
+    x2="100%"
+    y1="180"
+    y2="180"
+    stroke="gray"
+    stroke-width="1"
+    stroke-opacity="30%"
+  />
 
-    <p>
-      <input type="checkbox" bind:checked={customStatus} /> Customize input:
-    </p>
-    {#if customStatus}
-      <div transition:fade>
-        <input
-          class="customInput"
-          type="text"
-          on:change={(e) => {
-            status[0] = new Fraction(e.target?.value);
-          }}
-        />
-        <input
-          class="customInput"
-          type="text"
-          on:change={(e) => {
-            status[1] = new Fraction(e.target?.value);
-          }}
-        />
-        <input
-          class="customInput"
-          type="text"
-          on:change={(e) => {
-            status[2] = new Fraction(e.target?.value);
-          }}
-        />
-      </div>
-    {/if}
-  </div>
-  <div>
-    <svg
-      version="1.1"
-      width="300"
-      height="200"
-      xmlns="http://www.w3.org/2000/svg"
-    >
-      <rect
-        width="80"
-        x="10"
-        y={$dispX > 0 ? 150 - $dispX * 20 : 150}
-        height={Math.abs($dispX * 20)}
-        fill={$dispX > 0 ? 'green' : 'red'}
-      />
-      <rect
-        width="80"
-        x="110"
-        y={$dispY > 0 ? 150 - $dispY * 20 : 150}
-        height={Math.abs($dispY * 20)}
-        fill={$dispY > 0 ? 'green' : 'red'}
-      />
-      <rect
-        width="80"
-        x="210"
-        y={$dispZ > 0 ? 150 - $dispZ * 20 : 150}
-        height={Math.abs($dispZ * 20)}
-        fill={$dispZ > 0 ? 'green' : 'red'}
-      />
+  <!-- <circle cx="150" cy="100" r="80" fill="green" />
 
-      <line x1="0" x2="300" y1="150" y2="150" stroke="black" />
+<text x="150" y="125" font-size="60" text-anchor="middle" fill="white"
+  >SVG</text
+> -->
+</svg>
 
-      <!-- <circle cx="150" cy="100" r="80" fill="green" />
-
-      <text x="150" y="125" font-size="60" text-anchor="middle" fill="white"
-        >SVG</text
-      > -->
-    </svg>
-  </div>
+<div style="margin: 0.5rem;">
+  Average: {@html pprint(status.reduce((a, b) => a.add(b)).div(3))}
 </div>
+
+<div>
+  <button
+    on:click={() => {
+      status = [new Fraction(3), new Fraction(1), new Fraction(4)];
+    }}>Reset</button
+  >
+</div>
+
+<p>
+  <input type="checkbox" bind:checked={customStatus} /> Customize input:
+</p>
+{#if customStatus}
+  <div transition:fade>
+    <input
+      class="customInput"
+      type="text"
+      on:change={(e) => {
+        status[0] = new Fraction(e.target?.value);
+      }}
+    />
+    <input
+      class="customInput"
+      type="text"
+      on:change={(e) => {
+        status[1] = new Fraction(e.target?.value);
+      }}
+    />
+    <input
+      class="customInput"
+      type="text"
+      on:change={(e) => {
+        status[2] = new Fraction(e.target?.value);
+      }}
+    />
+  </div>
+{/if}
 
 <style>
   .number_holder {
@@ -239,17 +301,16 @@
     border-radius: 10px;
     min-width: 30%;
   }
+
+  svg {
+    height: 200px;
+    width: 100%;
+    max-width: 600px;
+  }
+
   .customInput {
     width: 100px;
     font-size: larger;
     text-align: center;
-  }
-
-  div#controlbox {
-    display: flex;
-    width: 800px;
-    max-width: 100%;
-    margin-top: 1rem;
-    justify-content: space-between;
   }
 </style>
