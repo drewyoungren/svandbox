@@ -1,10 +1,12 @@
 <script>
-  import { onMount } from 'svelte';
+  import { onMount, SvelteComponentTyped } from "svelte";
 
   /**
-   * @type Array<Array<Boolean>>
+   * @type Array<Number>
    */
-  let status = [];
+  let selected = [];
+
+  let clickLock = false;
 
   /**
    * @typedef ChocNode
@@ -17,17 +19,26 @@
    */
 
   /**
-   * @type Array<Array<ChocNode>>
+   * @type Array<ChocNode>
    */
   let grid = [];
+
+  /**
+   *
+   * @param i Number
+   * @param j Number
+   * @returns ChocNode
+   */
+  function getGrid(i, j) {
+    return grid.find((n) => n.i == i && n.j == j);
+  }
 
   let m = 2;
   let n = 3;
 
   for (let i = 0; i < 2 * m; i++) {
-    grid.push([]);
     for (let j = 0; j < 2 * n; j++) {
-      grid[i].push({
+      grid.push({
         i: i,
         j: j,
         choc: true,
@@ -40,6 +51,23 @@
   let score = [0, 0];
 
   /**
+   * @returns Boolean
+   */
+  function checkBoard() {
+    return grid
+      .filter((node) => node.choc)
+      .some((node) => {
+        const { i, j } = node;
+        return (
+          (i < 2 * n && getGrid(i + 1, j)?.choc) ||
+          (i > 0 && getGrid(i - 1, j)?.choc) ||
+          (j < 2 * m && getGrid(i, j + 1)?.choc) ||
+          (j > 0 && getGrid(i, j - 1)?.choc)
+        );
+      });
+  }
+
+  /**
    * @type Number
    */
   let sw = 2 * n * 100;
@@ -48,47 +76,100 @@
    */
   let sh = 2 * m * 100;
 
-  let turn = 0;
+  let turn = 1;
 
   onMount(() => console.log(grid));
 </script>
 
 <h1>Challenge 5.2: Hungry vs. Sneaky</h1>
 
-<p>Hungry and Sneaky take turns alternating</p>
+<p>
+  Hungry and Sneaky take turns selecting chocolates. Hungry can take any two
+  adjacent pieces. Sneaky can take any single piece and gets the remaining if
+  Hungry can't select any. How can Sneaky secure the most chocolate?
+</p>
+
+{#if turn % 3 > 0}
+  <h4>
+    Hungry's turn ({turn % 3} of 2).
+  </h4>
+{:else}
+  <h4>Sneaky's turn.</h4>
+{/if}
 
 <div class="maindisplay">
   <svg
     xmlns="http://www.w3.org/2000/svg"
-    style:height={2 * m * 100}
-    style:width={2 * n * 100}
+    style:height={(2 * m * 100).toString() + "px"}
+    style:width={(2 * n * 100).toString() + "px"}
   >
-    {#each grid as row}
-      {#each row as { i, j, choc, sneakySelect, hungrySelect }}
-        <rect x={j * 100} y={i * 100} width="100" height="100" fill="black"
-        ></rect>
-        {#if choc}
-          <!-- svelte-ignore a11y-click-events-have-key-events -->
-          <!-- svelte-ignore a11y-no-static-element-interactions -->
-          <circle
-            cx={j * 100 + 50}
-            cy={i * 100 + 50}
-            r="45"
-            fill="brown"
-            on:click={() => {
-              if (turn == 0) {
-                hungrySelect = !hungrySelect;
+    {#each grid as { i, j, choc, sneakySelect, hungrySelect }}
+      <rect x={j * 100} y={i * 100} width="100" height="100" fill="black"
+      ></rect>
+      {#if choc}
+        <!-- svelte-ignore a11y-click-events-have-key-events -->
+        <!-- svelte-ignore a11y-no-static-element-interactions -->
+        <circle
+          cx={j * 100 + 50}
+          cy={i * 100 + 50}
+          r="45"
+          fill="brown"
+          on:click={() => {
+            if (turn % 3 == 1) {
+              if (choc && !hungrySelect) {
+                hungrySelect = true;
+                selected = [i, j];
+                turn += 1;
               }
-            }}
-            stroke={hungrySelect ? 'yellow' : sneakySelect ? 'lightblue' : ''}
-            stroke-width="4"
-          ></circle>
-        {/if}
-      {/each}
+            } else if (turn % 3 == 2) {
+              if (!clickLock) {
+                if (
+                  choc &&
+                  Math.abs(i - selected[0]) + Math.abs(j - selected[1]) == 1
+                ) {
+                  hungrySelect = true;
+                  clickLock = true;
+                  setTimeout(() => {
+                    turn += 1;
+                    hungrySelect = false;
+                    choc = false;
+                    getGrid(selected[0], selected[1]).choc = false;
+                    getGrid(selected[0], selected[1]).hungrySelect = false;
+                    score[0] += 2;
+                    selected = [];
+                    clickLock = false;
+                  }, 500);
+                } else if (
+                  Math.abs(i - selected[0]) + Math.abs(j - selected[1]) ==
+                  0
+                ) {
+                  selected = [];
+                  hungrySelect = false;
+                  turn -= 1;
+                }
+              }
+            } else {
+              if (!clickLock) {
+                sneakySelect = true;
+                clickLock = true;
+                setTimeout(() => {
+                  sneakySelect = false;
+                  choc = false;
+                  score[1] += 1;
+                  turn += 1;
+                  clickLock = false;
+                }, 500);
+              }
+            }
+          }}
+          stroke={hungrySelect ? "yellow" : sneakySelect ? "lightblue" : ""}
+          stroke-width="4"
+        ></circle>
+      {/if}
     {/each}
   </svg>
 
-  <table>
+  <table border="1">
     <tr>
       <th>Hungry</th>
       <th>Sneaky</th>
@@ -108,8 +189,17 @@
 <style>
   .maindisplay {
     display: flex;
+    align-items: center;
+    justify-content: space-around;
+    flex-wrap: wrap;
+    max-width: 1000px;
   }
-  svg {
-    max-width: 100%;
+
+  th {
+    font-weight: bold;
+  }
+
+  td {
+    text-align: center;
   }
 </style>
