@@ -11,6 +11,9 @@
     <a href="rects_in_color">Challenge 3.3: Random Rectangles</a>
   </li>
   <li>
+    <a href="pancakes">Challenge 3.4: Flipping Pancakes</a>
+  </li>
+  <li>
     <a href="black_corners">Challenge 4.1: Black Corners</a>
   </li>
   <li>
