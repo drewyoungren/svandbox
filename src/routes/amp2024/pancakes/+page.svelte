@@ -9,9 +9,6 @@
 
   let N = 10;
 
-  for (let i = 1; i < N; i++) {
-    status.push(i);
-  }
   /**
    * Shuffle via Knuth algorithm
    * @param array {Array<any>}
@@ -33,8 +30,6 @@
     }
   }
 
-  shuffle(status);
-
   function reset() {
     count = 0;
     status = [];
@@ -51,6 +46,8 @@
       count++;
     }
   }
+
+  reset();
 </script>
 
 <h1>Challenge 3.4: Pancake flipping</h1>
@@ -72,8 +69,10 @@ that the pancake with 1 blueberry will <strong>always</strong> end up on top.
   {/each}
 </div>
 
-<button on:click={flipStack}>Flip</button>
-<button on:click={reset}>Reset</button>
+<div class="buttonbank">
+  <button on:click={flipStack}>Flip</button>
+  <button on:click={reset}>Reset</button>
+</div>
 
 {#if status[0] == 1}
   <h3 style:color={'darkred'}>You did it in {count} flips.</h3>
@@ -92,9 +91,19 @@ that the pancake with 1 blueberry will <strong>always</strong> end up on top.
     width: 200px;
     text-align: center;
     border: 1px solid black;
-    font-size: 18px;
+    font-size: 20px;
     color: white;
     background-color: #c6983a;
     border-radius: 8px;
+    font-weight: bolder;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  }
+
+  .buttonbank {
+    width: 200px;
+    display: flex;
+    flex: auto;
+    margin-top: 10px;
+    justify-content: space-around;
   }
 </style>
