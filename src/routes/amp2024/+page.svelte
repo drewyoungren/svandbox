@@ -19,4 +19,7 @@
   <li>
     <a href="zap">Challenge 4.5: Zap It!</a>
   </li>
+  <li>
+    <a href="hungry_sneaky">Challenge 5.2: Hungry/Sneaky</a>
+  </li>
 </ul>
