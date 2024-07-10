@@ -7,6 +7,7 @@
   let selected = [];
 
   let clickLock = false;
+  let unit = 100;
 
   /**
    * @typedef ChocNode
@@ -57,7 +58,6 @@
       }
     }
   };
-  reset();
 
   /**
    * @returns {Boolean}
@@ -96,11 +96,11 @@
   /**
    * @type Number
    */
-  let sw = 2 * n * 100;
+  let sw;
   /**
    * @type Number
    */
-  let sh = 2 * m * 100;
+  let sh;
 
   /**
    *
@@ -171,7 +171,7 @@
     return s;
   };
 
-  onMount(() => console.log(grid));
+  onMount(reset);
 </script>
 
 <h1>Challenge 5.2: Hungry vs. Sneaky</h1>
@@ -196,6 +196,7 @@
     xmlns="http://www.w3.org/2000/svg"
     style:height={(2 * m * 100).toString() + 'px'}
     style:width={(2 * n * 100).toString() + 'px'}
+    viewBox={`0 0 ${2 * n * 100} ${2 * m * 100}`}
   >
     {#each grid as node}
       {#if node.choc}
