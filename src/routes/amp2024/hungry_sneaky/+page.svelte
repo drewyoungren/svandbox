@@ -1,5 +1,5 @@
 <script>
-  import { onMount, SvelteComponentTyped } from "svelte";
+  import { onMount, SvelteComponentTyped } from 'svelte';
 
   /**
    * @type Array<Number>
@@ -23,38 +23,45 @@
    */
   let grid = [];
 
+  let score = [0, 0];
+  let turn = 1;
   /**
-   *
-   * @param i Number
-   * @param j Number
-   * @returns ChocNode
+   * Returns the object with the given coords.
+   * @param i {Number}
+   * @param j {Number}
+   * @returns {ChocNode|undefined}
    */
-  function getGrid(i, j) {
+  const getGrid = (i, j) => {
     return grid.find((n) => n.i == i && n.j == j);
-  }
+  };
 
   let m = 2;
   let n = 3;
 
-  for (let i = 0; i < 2 * m; i++) {
-    for (let j = 0; j < 2 * n; j++) {
-      grid.push({
-        i: i,
-        j: j,
-        choc: true,
-        hungrySelect: false,
-        sneakySelect: false,
-      });
+  const reset = () => {
+    turn = 1;
+    score = [0, 0];
+    clickLock = false;
+    grid = [];
+    for (let i = 0; i < 2 * m; i++) {
+      for (let j = 0; j < 2 * n; j++) {
+        grid.push({
+          i: i,
+          j: j,
+          choc: true,
+          hungrySelect: false,
+          sneakySelect: false,
+        });
+      }
     }
-  }
-
-  let score = [0, 0];
+  };
+  reset();
 
   /**
-   * @returns Boolean
+   * @returns {Boolean}
    */
   function checkBoard() {
-    return grid
+    const goOn = grid
       .filter((node) => node.choc)
       .some((node) => {
         const { i, j } = node;
@@ -65,6 +72,20 @@
           (j > 0 && getGrid(i, j - 1)?.choc)
         );
       });
+    if (!goOn) {
+      clickLock = true;
+      grid
+        .filter((node) => node.choc)
+        .forEach((node) => {
+          node.sneakySelect = true;
+          setTimeout(() => {
+            score[1] += 1;
+            node.sneakySelect = false;
+            node.choc = false;
+          }, 500);
+        });
+    }
+    return goOn;
   }
 
   /**
@@ -75,8 +96,6 @@
    * @type Number
    */
   let sh = 2 * m * 100;
-
-  let turn = 1;
 
   onMount(() => console.log(grid));
 </script>
@@ -99,13 +118,14 @@
 
 <div class="maindisplay">
   <svg
+    version="1.1"
     xmlns="http://www.w3.org/2000/svg"
-    style:height={(2 * m * 100).toString() + "px"}
-    style:width={(2 * n * 100).toString() + "px"}
+    style:height={(2 * m * 100).toString() + 'px'}
+    style:width={(2 * n * 100).toString() + 'px'}
   >
     {#each grid as { i, j, choc, sneakySelect, hungrySelect }}
-      <rect x={j * 100} y={i * 100} width="100" height="100" fill="black"
-      ></rect>
+      <!-- <rect x={j * 100} y={i * 100} width="100" height="100" fill="black"
+      ></rect> -->
       {#if choc}
         <!-- svelte-ignore a11y-click-events-have-key-events -->
         <!-- svelte-ignore a11y-no-static-element-interactions -->
@@ -113,7 +133,7 @@
           cx={j * 100 + 50}
           cy={i * 100 + 50}
           r="45"
-          fill="brown"
+          fill="#45200D"
           on:click={() => {
             if (turn % 3 == 1) {
               if (choc && !hungrySelect) {
@@ -162,7 +182,7 @@
               }
             }
           }}
-          stroke={hungrySelect ? "yellow" : sneakySelect ? "lightblue" : ""}
+          stroke={hungrySelect ? 'yellow' : sneakySelect ? 'lightblue' : ''}
           stroke-width="4"
         ></circle>
       {/if}
@@ -181,10 +201,35 @@
   </table>
 </div>
 
-<div>
-  <p>m:<input type="number" name="m" id="mnumber" bind:value={m} /></p>
-  <p>n:<input type="number" name="n" id="nnumber" bind:value={n} /></p>
-</div>
+{#key turn}
+  {#if !checkBoard()}
+    <h2>
+      Game Over in {2 * Math.floor(turn / 3) + (turn % 3 ? 1 : 0) - 1} turns.
+    </h2>
+
+    <div class="ifwinner">
+      <span>
+        <label for="m">m:</label><input
+          class="paramPut"
+          type="number"
+          name="m"
+          id="mnumber"
+          bind:value={m}
+        />
+      </span>
+      <span>
+        <label for="n">n:</label><input
+          class="paramPut"
+          type="number"
+          name="n"
+          id="nnumber"
+          bind:value={n}
+        />
+      </span>
+      <button on:click={reset}>Play again</button>
+    </div>
+  {/if}
+{/key}
 
 <style>
   .maindisplay {
@@ -201,5 +246,17 @@
 
   td {
     text-align: center;
+  }
+
+  .ifwinner {
+    display: flex;
+    justify-content: space-between;
+    max-width: 300px;
+  }
+  .paramPut {
+    width: 3rem;
+  }
+  svg {
+    background-color: black;
   }
 </style>
