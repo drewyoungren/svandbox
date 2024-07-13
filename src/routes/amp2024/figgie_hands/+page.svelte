@@ -32,7 +32,7 @@
 </p>
 <p>
   <M display={true}
-    >{`P(\\text{long} \\mid n) = \\frac{\\binom{12}{n}\\binom{28}{10 - n}}{\\binom{8}{n}\\binom{32}{10 - n} + 2\\binom{10}{n}\\binom{30}{10 - n} + \\binom{12}{n}\\binom{28}{10 - n}}`}</M
+    >{`P(\\text{common} \\mid n) = \\frac{\\binom{12}{n}\\binom{28}{10 - n}}{\\binom{8}{n}\\binom{32}{10 - n} + 2\\binom{10}{n}\\binom{30}{10 - n} + \\binom{12}{n}\\binom{28}{10 - n}}`}</M
   >
 </p>
 
