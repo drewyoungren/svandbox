@@ -1,6 +1,8 @@
 <script>
   import { onMount } from 'svelte';
   import Xbox from './Xbox.svelte';
+  import { flip } from 'svelte/animate';
+  import { fade } from 'svelte/transition';
 
   /**
    * @type Array<Number>
@@ -11,17 +13,23 @@
   let loaded = false;
 
   /**
+   * How many positions to "store" offscreen
+   * @type number
+   */
+  const offset = 10;
+
+  /**
    * viewable width of strip
    * @type Number
    */
   let w;
 
-  let leftEnd = -10;
+  let leftEnd = -offset;
   $: nBoxes = Math.floor(w / 60) || 20;
-  $: rightEnd = leftEnd + nBoxes;
+  $: rightEnd = leftEnd + nBoxes + 2 * offset;
 
   onMount(() => {
-    leftEnd = -Math.floor(nBoxes / 2);
+    leftEnd = -Math.floor(nBoxes / 2) - offset;
     // window.alert('continue?');
     loaded = true;
   });
@@ -82,22 +90,31 @@
 
 <div id="strip" bind:clientWidth={w}>
   {#if loaded}
-    {#each viewRange as index}
-      <Xbox id={index} bind:status bind:billieTurn on:deleteMe={handleDeleteMe}
-      ></Xbox>
+    {#each viewRange as index (index)}
+      <div
+        animate:flip={{ duration: 300 }}
+        in:fade={{ delay: 300, duration: 0 }}
+      >
+        <Xbox
+          id={index}
+          bind:status
+          bind:billieTurn
+          on:deleteMe={handleDeleteMe}
+        ></Xbox>
+      </div>
     {/each}
   {/if}
 </div>
 
 {#if loaded}
   <div id="buttonBox">
-    <span>{leftEnd}</span>
+    <span>{leftEnd + offset}</span>
     <button on:click={() => leftEnd--}>&larr;</button>
-    <button on:click={() => (leftEnd = -Math.floor(nBoxes / 2))}>
+    <button on:click={() => (leftEnd = -Math.floor(nBoxes / 2) - offset)}>
       reset view
     </button>
     <button on:click={() => leftEnd++}>&rarr;</button>
-    <span>{rightEnd}</span>
+    <span>{rightEnd - offset}</span>
   </div>
 
   <button
@@ -115,12 +132,12 @@
     flex-wrap: nowrap;
     width: 100%;
     height: 100px;
+    justify-content: center;
   }
 
   div#buttonBox {
     display: flex;
     justify-content: center;
-    align-items: center;
   }
 
   div#buttonBox > span {
