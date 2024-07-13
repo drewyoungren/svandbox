@@ -26,7 +26,7 @@
 
 <!-- svelte-ignore a11y-click-events-have-key-events -->
 <!-- svelte-ignore a11y-no-static-element-interactions -->
-<div on:click={leftClick}>
+<div on:click={leftClick} class="unselectable">
   {#if marked}X{/if}
 </div>
 
@@ -44,5 +44,9 @@
     flex-direction: column;
     font-family: 'Franklin Gothic Medium', Arial, sans-serif;
     font-size: 2.5rem;
+  }
+
+  .unselectable {
+    user-select: none;
   }
 </style>
