@@ -16,7 +16,7 @@
    * How many positions to "store" offscreen
    * @type number
    */
-  const offset = 10;
+  const offset = 17;
 
   /**
    * viewable width of strip
