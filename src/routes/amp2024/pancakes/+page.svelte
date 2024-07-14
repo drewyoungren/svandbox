@@ -50,7 +50,7 @@
   reset();
 </script>
 
-<h1>Challenge 3.4: Pancake flipping</h1>
+<h1>Challenge: Pancake flipping</h1>
 
 A stack of<em>N</em> pancakes has exactly one each number of blueberries from 1
 to <em>N</em>. At each flip, one reverses the stack of the top <em>m</em>

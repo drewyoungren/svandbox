@@ -72,7 +72,7 @@
   }
 </script>
 
-<h1>Challenge 2.4: Infinite Strip</h1>
+<h1>Challenge: Infinite Strip</h1>
 
 <p>
   Billie and Charlie alternate turns. Billie can mark 2 <code>X</code>'s
@@ -109,16 +109,32 @@
 {#if loaded}
   <div id="buttonBox">
     <span>{leftEnd + offset}</span>
-    <button on:click={() => leftEnd--}>&larr;</button>
-    <button on:click={() => (leftEnd = -Math.floor(nBoxes / 2) - offset)}>
+    <button
+      on:click={(e) => {
+        e.preventDefault();
+        leftEnd--;
+      }}>&larr;</button
+    >
+    <button
+      on:click={(e) => {
+        e.preventDefault();
+        leftEnd = -Math.floor(nBoxes / 2) - offset;
+      }}
+    >
       reset view
     </button>
-    <button on:click={() => leftEnd++}>&rarr;</button>
+    <button
+      on:click={(e) => {
+        e.preventDefault();
+        leftEnd++;
+      }}>&rarr;</button
+    >
     <span>{rightEnd - offset}</span>
   </div>
 
   <button
-    on:click={() => {
+    on:click={(e) => {
+      e.preventDefault();
       status = [];
       leftEnd = -Math.floor(nBoxes / 2);
       billieTurn = 1;
@@ -133,6 +149,7 @@
     width: 100%;
     height: 100px;
     justify-content: center;
+    overflow: hidden;
   }
 
   div#buttonBox {

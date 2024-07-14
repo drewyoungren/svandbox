@@ -12,7 +12,12 @@
 
   $: marked = status.indexOf(id) > -1;
 
-  const leftClick = () => {
+  /**
+   *
+   * @param e {Event}
+   */
+  const leftClick = (e) => {
+    e.preventDefault();
     if (billieTurn && !marked) {
       status = [...status, id];
       billieTurn = (billieTurn + 1) % 3;
@@ -48,5 +53,9 @@
 
   .unselectable {
     user-select: none;
+    -moz-user-select: none;
+    -khtml-user-select: none;
+    -webkit-user-select: none;
+    -o-user-select: none;
   }
 </style>

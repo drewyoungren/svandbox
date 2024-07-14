@@ -174,7 +174,7 @@
   onMount(reset);
 </script>
 
-<h1>Challenge 5.2: Hungry vs. Sneaky</h1>
+<h1>Challenge: Hungry vs. Sneaky</h1>
 
 <p>
   Hungry and Sneaky take turns selecting chocolates. Hungry can take any two

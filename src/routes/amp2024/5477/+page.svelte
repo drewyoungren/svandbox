@@ -3,7 +3,7 @@
   let moves = 0;
 </script>
 
-<h1>Challenge 2.5: 54/77</h1>
+<h1>Challenge: 54/77</h1>
 <div>
   <p>
     Starting with a random integer, will arbitrarily adding 54 or 77 repeatedly
