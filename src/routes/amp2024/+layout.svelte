@@ -2,6 +2,10 @@
   import { base } from '$app/paths';
 </script>
 
+<svelte:head>
+  <meta name="robots" content="noindex" />
+</svelte:head>
+
 <nav>
   <a href="{base}/amp2024/">Home</a>
 </nav>

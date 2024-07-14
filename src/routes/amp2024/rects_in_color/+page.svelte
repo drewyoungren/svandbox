@@ -106,7 +106,7 @@
   };
 </script>
 
-<h1>Challenge 3.3</h1>
+<h1>Challenge: Monochrome Corners</h1>
 <p>
   Must every coloring of a 3 by 7 grid with two colors admit a rectangle with
   monochrome corners?

@@ -79,7 +79,7 @@
   };
 </script>
 
-<h1>Challenge 4.1</h1>
+<h1>Challenge: Black Corners</h1>
 <p>
   Can you get back to one color by swapping every tile in a row <kbd>Click</kbd>
   or a column <kbd>Shift</kbd>+<kbd>Click</kbd>. You can also use the button to
