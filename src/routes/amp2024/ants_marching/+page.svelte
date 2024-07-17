@@ -1,7 +1,7 @@
 <script>
-  import { onMount } from "svelte";
-  import * as THREE from "three";
-  import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
+  import { onMount } from 'svelte';
+  import * as THREE from 'three';
+  import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 
   let stopGo = true;
 
@@ -18,7 +18,7 @@
   let renderer;
 
   const scene = new THREE.Scene();
-  scene.background = new THREE.Color("#DEDEDE");
+  scene.background = new THREE.Color('#DEDEDE');
 
   const camera = new THREE.PerspectiveCamera(75, 2, 0.1, 0);
 
@@ -143,11 +143,14 @@
       e.box.geometry.dispose();
       scene.remove(e.box);
     });
+    status = [];
     for (let i = 0; i <= totalSteps + 1; i++) {
       for (let j = 0; j + i <= totalSteps + 1; j++) {
         const count = i + j == 0 ? 16 : 0;
         const box = new THREE.Mesh(
-          count == 0 ? undefined : new THREE.BoxGeometry(STEP, count, STEP),
+          count == 0
+            ? undefined
+            : new THREE.BoxGeometry(0.8 * STEP, count, 0.8 * STEP),
           new THREE.MeshBasicMaterial({
             color: Math.floor(((i + j) / (2 * totalSteps)) * 0xaa33aa),
           })
@@ -241,7 +244,7 @@
     on:click={() => {
       stopGo = !stopGo;
       if (stopGo) requestAnimationFrame(render);
-    }}>{stopGo ? "Stop" : "Go"}</button
+    }}>{stopGo ? 'Stop' : 'Go'}</button
   >
 </div>
 
