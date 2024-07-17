@@ -3,6 +3,8 @@
   import * as THREE from "three";
   import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 
+  let stopGo = true;
+
   //scene stuff
 
   /**
@@ -61,7 +63,7 @@
     renderer.setSize(w, h);
     renderer.render(scene, camera);
 
-    requestAnimationFrame(render);
+    if (stopGo) requestAnimationFrame(render);
   }
 
   onMount(() => {
@@ -166,12 +168,21 @@
   }
 
   function drawStatus() {
+    const total = status
+      .filter((e) => e.i + e.j == totalSteps + 1)
+      .map((e) => e.count)
+      .reduce((p, n) => p + n);
     status.forEach((e) => {
       let { count, box } = e;
       if (count != box.count) {
         box.geometry?.dispose();
-        box.geometry = new THREE.BoxGeometry(STEP, count, STEP);
-        box.position.y = count / 2;
+        box.geometry = new THREE.BoxGeometry(
+          STEP,
+          e.i + e.j <= totalSteps ? count : (10 * count) / total,
+          STEP
+        );
+        box.position.y =
+          e.i + e.j <= totalSteps ? count / 2 : (5 * count) / total;
       }
     });
   }
@@ -183,8 +194,8 @@
         .forEach((entry) => {
           let { i, j, count, box } = entry;
           for (let g = 0; g < count; g++) {
-            if (Math.random() < 1 / 10) {
-              entry.count -= 1;
+            if (Math.random() < 1 / 100) {
+              entry.count -= i + j > 0 ? 1 : 0;
               if (Math.random() > 0.5) {
                 // go up
                 status.find((e) => e.i == i + 1 && e.j == j).count++;
@@ -226,6 +237,12 @@
     max="1000"
     step="50"
   />
+  <button
+    on:click={() => {
+      stopGo = !stopGo;
+      if (stopGo) requestAnimationFrame(render);
+    }}>{stopGo ? "Stop" : "Go"}</button
+  >
 </div>
 
 <canvas bind:this={canvas} bind:clientWidth={w} bind:clientHeight={h}></canvas>
