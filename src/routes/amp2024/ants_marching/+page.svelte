@@ -1,7 +1,9 @@
 <script>
-  import { onMount } from 'svelte';
-  import * as THREE from 'three';
-  import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
+  // @ts-nocheck
+
+  import { onMount } from "svelte";
+  import * as THREE from "three";
+  import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 
   let stopGo = true;
 
@@ -18,7 +20,7 @@
   let renderer;
 
   const scene = new THREE.Scene();
-  scene.background = new THREE.Color('#DEDEDE');
+  scene.background = new THREE.Color("#DEDEDE");
 
   const camera = new THREE.PerspectiveCamera(75, 2, 0.1, 0);
 
@@ -146,7 +148,7 @@
     status = [];
     for (let i = 0; i <= totalSteps + 1; i++) {
       for (let j = 0; j + i <= totalSteps + 1; j++) {
-        const count = i + j == 0 ? 16 : 0;
+        const count = 0;
         const box = new THREE.Mesh(
           count == 0
             ? undefined
@@ -179,13 +181,19 @@
       let { count, box } = e;
       if (count != box.count) {
         box.geometry?.dispose();
-        box.geometry = new THREE.BoxGeometry(
-          STEP,
-          e.i + e.j <= totalSteps ? count : (10 * count) / total,
-          STEP
-        );
-        box.position.y =
-          e.i + e.j <= totalSteps ? count / 2 : (5 * count) / total;
+        if (count > 0) {
+          box.geometry = new THREE.BoxGeometry(
+            0.8 * STEP,
+            e.i + e.j <= totalSteps ? count : (10 * count) / total,
+            0.8 * STEP
+          );
+          box.position.y =
+            e.i + e.j <= totalSteps ? count / 2 : (5 * count) / total;
+          box.visible = true;
+        } else {
+          console.log("Should reset to 0", e.i, e.j);
+          box.visible = false;
+        }
       }
     });
   }
@@ -197,8 +205,10 @@
         .forEach((entry) => {
           let { i, j, count, box } = entry;
           for (let g = 0; g < count; g++) {
-            if (Math.random() < 1 / 100) {
-              entry.count -= i + j > 0 ? 1 : 0;
+            console.log(i, j, count, box.count);
+            if (Math.random() < 1 / 20) {
+              entry.count -= 1;
+              console.log("Ant moving!", entry.count);
               if (Math.random() > 0.5) {
                 // go up
                 status.find((e) => e.i == i + 1 && e.j == j).count++;
@@ -244,7 +254,12 @@
     on:click={() => {
       stopGo = !stopGo;
       if (stopGo) requestAnimationFrame(render);
-    }}>{stopGo ? 'Stop' : 'Go'}</button
+    }}>{stopGo ? "Stop" : "Go"}</button
+  >
+  <button
+    on:click={() => {
+      status.find((e) => e.i == 0 && e.j == 0).count += 1;
+    }}>ANT!</button
   >
 </div>
 
@@ -254,5 +269,9 @@
   canvas {
     width: 70%;
     height: 80%;
+  }
+  div#controls {
+    display: flex;
+    justify-content: space-around;
   }
 </style>

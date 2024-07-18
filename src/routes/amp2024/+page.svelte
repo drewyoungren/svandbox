@@ -31,5 +31,6 @@
   <h2>Odds and Ends</h2>
   <ul>
     <li><a href="figgie_hands">Figgie starting odds</a></li>
+    <li><a href="ants_marching">Ants marching</a></li>
   </ul>
 </section>
