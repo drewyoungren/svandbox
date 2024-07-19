@@ -1,14 +1,14 @@
 <script>
   // @ts-nocheck
-  import M from "$lib/M.svelte";
-  import { onMount } from "svelte";
-  import * as THREE from "three";
-  import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
+  import M from '$lib/M.svelte';
+  import { onMount } from 'svelte';
+  import * as THREE from 'three';
+  import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 
   let stopGo = false;
   let blockI = 2;
   let blockJ = 2;
-  let blockWarn = "";
+  let blockWarn = '';
   //scene stuff
 
   /**
@@ -22,7 +22,7 @@
   let renderer;
 
   const scene = new THREE.Scene();
-  scene.background = new THREE.Color("#FFFFFF");
+  scene.background = new THREE.Color('#FFFFFF');
 
   const camera = new THREE.PerspectiveCamera(75, 2, 0.1, 0);
 
@@ -66,11 +66,14 @@
    * @returns boolean
    */
   function resizeRendererToDisplaySize(renderer) {
-    const needResize = canvas.width !== w || canvas.height !== h;
-    if (needResize) {
-      renderer.setSize(w, h, false);
+    if (!canvas) return false;
+    else {
+      const needResize = canvas.width !== w || canvas.height !== h;
+      if (needResize) {
+        renderer.setSize(w, h, false);
+      }
+      return needResize;
     }
-    return needResize;
   }
 
   /**
@@ -264,7 +267,7 @@
       } else if (!blocked && box.children.length > 0) {
         box.children.forEach(cleanItem);
         box.remove(box.children[0]);
-        console.log(box.children, "gone");
+        console.log(box.children, 'gone');
       }
     });
   }
@@ -416,8 +419,8 @@
         if (elem) {
           elem.blocked = !elem.blocked;
         } else {
-          blockWarn = "Not in range";
-          setTimeout(() => (blockWarn = ""), 1000);
+          blockWarn = 'Not in range';
+          setTimeout(() => (blockWarn = ''), 1000);
         }
       }}>&PlusMinus;Block</button
     > <span class="warn">{blockWarn}</span>
