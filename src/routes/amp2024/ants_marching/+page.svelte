@@ -187,12 +187,9 @@
       scene.remove(e.box);
     });
     status = [];
-<<<<<<< HEAD
     blockI = 1;
     blockJ = 1;
-=======
     runningTotal = 0;
->>>>>>> c907a48 (Add scaling (broken))
     for (let i = 0; i <= totalSteps + 1; i++) {
       for (let j = 0; j + i <= totalSteps + 1; j++) {
         const count = 0;
