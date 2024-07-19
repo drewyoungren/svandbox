@@ -1,11 +1,11 @@
 <script>
   // @ts-nocheck
 
-  import { onMount } from "svelte";
-  import * as THREE from "three";
-  import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
+  import { onMount } from 'svelte';
+  import * as THREE from 'three';
+  import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 
-  let stopGo = true;
+  let stopGo = false;
 
   //scene stuff
 
@@ -20,7 +20,7 @@
   let renderer;
 
   const scene = new THREE.Scene();
-  scene.background = new THREE.Color("#DEDEDE");
+  scene.background = new THREE.Color('#FFFFFF');
 
   const camera = new THREE.PerspectiveCamera(75, 2, 0.1, 0);
 
@@ -47,10 +47,25 @@
   let controls;
 
   /**
+   * Check if we need to resize the canvas
+   * @param renderer {THREE.WebGLRenderer}
+   * @returns boolean
+   */
+  function resizeRendererToDisplaySize(renderer) {
+    const width = canvas.clientWidth;
+    const height = canvas.clientHeight;
+    const needResize = canvas.width !== w || canvas.height !== h;
+    if (needResize) {
+      renderer.setSize(width, height, false);
+    }
+    return needResize;
+  }
+
+  /**
    * Animate loop
    * @param time {number}
    */
-  function render(time) {
+  function render(time, loop = true) {
     time *= 0.001;
 
     camera.aspect = w / h;
@@ -62,10 +77,14 @@
     evolve();
     drawStatus();
 
-    renderer.setSize(w, h);
+    if (resizeRendererToDisplaySize(renderer)) {
+      const canvas = renderer.domElement;
+      camera.aspect = canvas.clientWidth / canvas.clientHeight;
+      camera.updateProjectionMatrix();
+    }
     renderer.render(scene, camera);
 
-    if (stopGo) requestAnimationFrame(render);
+    requestAnimationFrame(render);
   }
 
   onMount(() => {
@@ -89,6 +108,8 @@
 
     // // resize();
     // requestFrameIfNotRequested();
+
+    resetStatus();
 
     requestAnimationFrame(render);
   });
@@ -117,15 +138,18 @@
       points.push(new THREE.Vector3(STEP * (totalSteps + 1), 0, i * STEP));
     }
 
+    points.push(new THREE.Vector3(0, 0, 0));
+    points.push(new THREE.Vector3(0, 2, 0));
+
     const gridGeometry = new THREE.BufferGeometry().setFromPoints(points);
     lineMesh.geometry.dispose();
     lineMesh.geometry = gridGeometry;
   }
 
-  $: drawGrid(totalSteps);
+  $: drawGrid(totalSteps + 1);
 
   let totalSteps = 4;
-  let timeStep = 500; // how oftern to update, in milliseconds
+  let timeStep = 20; // how oftern to update, in milliseconds
 
   /**
    * @typedef {Object} GridEntry
@@ -154,7 +178,7 @@
             ? undefined
             : new THREE.BoxGeometry(0.8 * STEP, count, 0.8 * STEP),
           new THREE.MeshBasicMaterial({
-            color: Math.floor(((i + j) / (2 * totalSteps)) * 0xaa33aa),
+            color: i + j == totalSteps + 1 ? 0x3333aa : 0x252525,
           })
         );
         status.push({
@@ -170,6 +194,18 @@
         scene.add(box);
       }
     }
+    controls?.target.set(
+      STEP * (totalSteps / 2 + 1),
+      0,
+      STEP * (totalSteps / 2 + 1)
+    );
+    camera?.lookAt(
+      new THREE.Vector3(
+        STEP * (totalSteps / 2 + 1),
+        0,
+        STEP * (totalSteps / 2 + 1)
+      )
+    );
   }
 
   function drawStatus() {
@@ -184,16 +220,15 @@
         if (count > 0) {
           box.geometry = new THREE.BoxGeometry(
             0.8 * STEP,
-            e.i + e.j <= totalSteps ? count : (10 * count) / total,
+            count / 10,
             0.8 * STEP
           );
-          box.position.y =
-            e.i + e.j <= totalSteps ? count / 2 : (5 * count) / total;
+          box.position.y = count / 20;
           box.visible = true;
         } else {
-          console.log("Should reset to 0", e.i, e.j);
           box.visible = false;
         }
+        box.count = count;
       }
     });
   }
@@ -205,10 +240,11 @@
         .forEach((entry) => {
           let { i, j, count, box } = entry;
           for (let g = 0; g < count; g++) {
-            console.log(i, j, count, box.count);
-            if (Math.random() < 1 / 20) {
-              entry.count -= 1;
-              console.log("Ant moving!", entry.count);
+            if (Math.random() < timeStep / 200) {
+              entry.count =
+                stopGo && i + j == 0
+                  ? Math.max(entry.count - 1, 1)
+                  : entry.count - 1;
               if (Math.random() > 0.5) {
                 // go up
                 status.find((e) => e.i == i + 1 && e.j == j).count++;
@@ -220,8 +256,6 @@
         });
     }
   }
-
-  resetStatus();
 </script>
 
 <h1>Ants Marching</h1>
@@ -232,46 +266,83 @@
 </p>
 
 <div id="controls">
-  <input
-    type="range"
-    name="totalSteps"
-    id="totalSteps"
-    bind:value={totalSteps}
-    on:input={resetStatus}
-    min="2"
-    max="10"
-  />
-  <input
-    type="range"
-    name="timeStep"
-    id="timeStep"
-    bind:value={timeStep}
-    min="50"
-    max="1000"
-    step="50"
-  />
-  <button
+  <label for="totalSteps"
+    >Steps:
+    <input
+      type="range"
+      name="totalSteps"
+      id="totalSteps"
+      bind:value={totalSteps}
+      on:input={resetStatus}
+      min="2"
+      step="1"
+      max="25"
+    />
+    {totalSteps}
+  </label>
+  <label for="timeStep">
+    Antsiness:
+    <input
+      type="range"
+      name="timeStep"
+      id="timeStep"
+      bind:value={timeStep}
+      min="5"
+      max="100"
+      step="5"
+    />{timeStep}</label
+  >
+  <!-- <button
     on:click={() => {
       stopGo = !stopGo;
       if (stopGo) requestAnimationFrame(render);
-    }}>{stopGo ? "Stop" : "Go"}</button
-  >
-  <button
-    on:click={() => {
-      status.find((e) => e.i == 0 && e.j == 0).count += 1;
-    }}>ANT!</button
-  >
+    }}>{stopGo ? 'Stop' : 'Go'}</button
+  > -->
+  <div>
+    <button
+      on:click={() => {
+        status.find((e) => e.i == 0 && e.j == 0).count += 1;
+      }}
+    >
+      ANT!
+    </button>
+    <button class:down={stopGo} on:click={() => (stopGo = !stopGo)}
+      >AntLock</button
+    >
+  </div>
 </div>
 
 <canvas bind:this={canvas} bind:clientWidth={w} bind:clientHeight={h}></canvas>
+<div>
+  <button on:click={resetStatus}>Reset</button>
+</div>
 
 <style>
   canvas {
-    width: 70%;
-    height: 80%;
+    width: 100%;
+    /* height: 80%; */
+    height: 100%;
+    max-width: 1000px;
   }
   div#controls {
+    width: 70%;
     display: flex;
-    justify-content: space-around;
+    justify-content: space-between;
+    align-items: baseline;
+    flex-direction: column;
+  }
+
+  button {
+    color: aliceblue;
+    background-color: navy;
+    border-radius: 15%;
+    padding: 10px;
+    padding-top: 5px;
+    padding-bottom: 5px;
+  }
+
+  button:active,
+  .down {
+    background-color: blueviolet;
   }
 </style>
