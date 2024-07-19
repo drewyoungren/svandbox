@@ -185,6 +185,8 @@
       scene.remove(e.box);
     });
     status = [];
+    blockI = 1;
+    blockJ = 1;
     for (let i = 0; i <= totalSteps + 1; i++) {
       for (let j = 0; j + i <= totalSteps + 1; j++) {
         const count = 0;
@@ -368,18 +370,26 @@
       </button>
       <button
         class:down={stopGo}
-        on:click|preventDefault={() => (stopGo = !stopGo)}>AntLock</button
+        on:click|preventDefault={() => (stopGo = !stopGo)}
+        >AntLock&trade;</button
       >
     </div>
   </div>
 
   <div class="blockBox">
     <button on:click={resetStatus}>Reset</button>
-    <input type="number" min="1" max={totalSteps} bind:value={blockI} />
     <input
       type="number"
-      min="1"
-      max={totalSteps - blockI}
+      min="0"
+      step="1"
+      max={totalSteps}
+      bind:value={blockI}
+    />
+    <input
+      type="number"
+      min="0"
+      step="1"
+      max={totalSteps}
       bind:value={blockJ}
     />
     <button
