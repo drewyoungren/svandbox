@@ -52,11 +52,9 @@
    * @returns boolean
    */
   function resizeRendererToDisplaySize(renderer) {
-    const width = canvas.clientWidth;
-    const height = canvas.clientHeight;
     const needResize = canvas.width !== w || canvas.height !== h;
     if (needResize) {
-      renderer.setSize(width, height, false);
+      renderer.setSize(w, h, false);
     }
     return needResize;
   }
@@ -78,10 +76,11 @@
     drawStatus();
 
     if (resizeRendererToDisplaySize(renderer)) {
-      const canvas = renderer.domElement;
-      camera.aspect = canvas.clientWidth / canvas.clientHeight;
+      camera.aspect = w / h;
       camera.updateProjectionMatrix();
     }
+
+    controls?.update();
     renderer.render(scene, camera);
 
     requestAnimationFrame(render);
@@ -196,7 +195,7 @@
     }
     controls?.target.set(
       STEP * (totalSteps / 2 + 1),
-      0,
+      2,
       STEP * (totalSteps / 2 + 1)
     );
     camera?.lookAt(
@@ -265,67 +264,72 @@
   equal probability at each step. Where do they end up after <em>n</em> steps?
 </p>
 
-<div id="controls">
-  <label for="totalSteps"
-    >Steps:
-    <input
-      type="range"
-      name="totalSteps"
-      id="totalSteps"
-      bind:value={totalSteps}
-      on:input={resetStatus}
-      min="2"
-      step="1"
-      max="25"
-    />
-    {totalSteps}
-  </label>
-  <label for="timeStep">
-    Antsiness:
-    <input
-      type="range"
-      name="timeStep"
-      id="timeStep"
-      bind:value={timeStep}
-      min="5"
-      max="100"
-      step="5"
-    />{timeStep}</label
-  >
-  <!-- <button
-    on:click={() => {
-      stopGo = !stopGo;
-      if (stopGo) requestAnimationFrame(render);
-    }}>{stopGo ? 'Stop' : 'Go'}</button
-  > -->
-  <div>
-    <button
+<div style="position: relative; height: 100%">
+  <canvas bind:this={canvas} bind:clientWidth={w} bind:clientHeight={h}
+  ></canvas>
+  <div id="controls">
+    <label for="totalSteps"
+      >Steps:
+      <input
+        type="range"
+        name="totalSteps"
+        id="totalSteps"
+        bind:value={totalSteps}
+        on:input={resetStatus}
+        min="2"
+        step="1"
+        max="25"
+      />
+      {totalSteps + 1}
+    </label>
+    <label for="timeStep">
+      Antsiness:
+      <input
+        type="range"
+        name="timeStep"
+        id="timeStep"
+        bind:value={timeStep}
+        min="5"
+        max="100"
+        step="5"
+      />{timeStep}</label
+    >
+    <!-- <button
       on:click={() => {
-        status.find((e) => e.i == 0 && e.j == 0).count += 1;
-      }}
-    >
-      ANT!
-    </button>
-    <button class:down={stopGo} on:click={() => (stopGo = !stopGo)}
-      >AntLock</button
-    >
+        stopGo = !stopGo;
+        if (stopGo) requestAnimationFrame(render);
+      }}>{stopGo ? 'Stop' : 'Go'}</button
+    > -->
+    <div>
+      <button
+        on:click={() => {
+          status.find((e) => e.i == 0 && e.j == 0).count += 1;
+        }}
+      >
+        ANT!
+      </button>
+      <button class:down={stopGo} on:click={() => (stopGo = !stopGo)}
+        >AntLock</button
+      >
+    </div>
   </div>
-</div>
-
-<canvas bind:this={canvas} bind:clientWidth={w} bind:clientHeight={h}></canvas>
-<div>
-  <button on:click={resetStatus}>Reset</button>
+  <button style="position: absolute; left: 0; bottom:0;" on:click={resetStatus}
+    >Reset</button
+  >;
 </div>
 
 <style>
   canvas {
     width: 100%;
-    /* height: 80%; */
-    height: 100%;
     max-width: 1000px;
+    height: 100%;
+    aspect-ratio: none;
   }
   div#controls {
     width: 70%;
+    position: absolute;
+    top: 0px;
+    left: 0px;
     display: flex;
     justify-content: space-between;
     align-items: baseline;
