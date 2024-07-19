@@ -1,6 +1,6 @@
 <script>
   // @ts-nocheck
-
+  import M from "$lib/M.svelte";
   import { onMount } from "svelte";
   import * as THREE from "three";
   import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
@@ -163,6 +163,7 @@
 
   let totalSteps = 4;
   let timeStep = 20; // how oftern to update, in milliseconds
+  let probUp = 0.5;
 
   /**
    * @typedef {Object} GridEntry
@@ -284,7 +285,7 @@
               if (
                 rightNeighbor &&
                 !rightNeighbor.blocked &&
-                Math.random() > 0.5
+                Math.random() > probUp
               ) {
                 // go up
                 rightNeighbor.count++;
@@ -304,7 +305,8 @@
 
 <p>
   Ants move along a rectangular lattice by choosing only 'up' or 'right' with
-  equal probability at each step. Where do they end up after <em>n</em> steps?
+  probability <M>p</M> or <M>1 - p</M> at each step. Where do they end up after
+  <M>n</M> steps?
 </p>
 
 <div class="container">
@@ -324,6 +326,19 @@
         max="25"
       />
       {totalSteps + 1}
+    </label>
+    <label for="probUp" style=""
+      ><M>p</M>:
+      <input
+        type="range"
+        name="probUp"
+        id="probUp"
+        bind:value={probUp}
+        min="0"
+        step="0.01"
+        max="1"
+      />
+      {probUp}
     </label>
     <label for="timeStep">
       Antsiness:
@@ -436,5 +451,9 @@
   }
   #blockbutton:active {
     background-color: red;
+  }
+  label {
+    display: inline-flex;
+    align-items: center;
   }
 </style>
