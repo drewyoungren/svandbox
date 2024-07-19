@@ -264,7 +264,7 @@
   equal probability at each step. Where do they end up after <em>n</em> steps?
 </p>
 
-<div style="position: relative; height: 100%">
+<div class="container">
   <canvas bind:this={canvas} bind:clientWidth={w} bind:clientHeight={h}
   ></canvas>
   <div id="controls">
@@ -302,14 +302,15 @@
     > -->
     <div>
       <button
-        on:click={() => {
+        on:click|preventDefault={() => {
           status.find((e) => e.i == 0 && e.j == 0).count += 1;
         }}
       >
         ANT!
       </button>
-      <button class:down={stopGo} on:click={() => (stopGo = !stopGo)}
-        >AntLock</button
+      <button
+        class:down={stopGo}
+        on:click|preventDefault={() => (stopGo = !stopGo)}>AntLock</button
       >
     </div>
   </div>
@@ -319,11 +320,15 @@
 </div>
 
 <style>
+  .container {
+    position: relative;
+    height: 75vh;
+    bottom: 5%;
+  }
   canvas {
     width: 100%;
     max-width: 1000px;
     height: 100%;
-    aspect-ratio: none;
   }
   div#controls {
     width: 70%;
