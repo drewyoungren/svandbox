@@ -1,12 +1,14 @@
 <script>
   // @ts-nocheck
 
-  import { onMount } from 'svelte';
-  import * as THREE from 'three';
-  import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
+  import { onMount } from "svelte";
+  import * as THREE from "three";
+  import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 
   let stopGo = false;
-
+  let blockI = 2;
+  let blockJ = 2;
+  let blockWarn = "";
   //scene stuff
 
   /**
@@ -20,7 +22,7 @@
   let renderer;
 
   const scene = new THREE.Scene();
-  scene.background = new THREE.Color('#FFFFFF');
+  scene.background = new THREE.Color("#FFFFFF");
 
   const camera = new THREE.PerspectiveCamera(75, 2, 0.1, 0);
 
@@ -33,6 +35,18 @@
   // const geometry = new THREE.BoxGeometry();
   const material = new THREE.MeshBasicMaterial({
     color: 0x7744cc,
+    // shininess: 80,
+  });
+  const materialBlack = new THREE.MeshBasicMaterial({
+    color: 0x252525,
+    // shininess: 80,
+  });
+  const materialBlue = new THREE.MeshBasicMaterial({
+    color: 0x3333aa,
+    // shininess: 80,
+  });
+  const materialRed = new THREE.MeshBasicMaterial({
+    color: 0xaa3333,
     // shininess: 80,
   });
   // const cube = new THREE.Mesh(geometry, material);
@@ -156,6 +170,7 @@
    * @property {number} j
    * @property {number} count
    * @property {THREE.Mesh} box
+   * @property {boolean} blocked
    */
 
   /**
@@ -172,19 +187,20 @@
     for (let i = 0; i <= totalSteps + 1; i++) {
       for (let j = 0; j + i <= totalSteps + 1; j++) {
         const count = 0;
+        const blocked = false;
         const box = new THREE.Mesh(
           count == 0
             ? undefined
             : new THREE.BoxGeometry(0.8 * STEP, count, 0.8 * STEP),
-          new THREE.MeshBasicMaterial({
-            color: i + j == totalSteps + 1 ? 0x3333aa : 0x252525,
-          })
+          i + j == totalSteps + 1 ? materialBlue : materialBlack
         );
+
         status.push({
           i,
           j,
           count,
           box,
+          blocked,
         });
         box.position.x = i * STEP + STEP / 2;
         box.position.z = j * STEP + STEP / 2;
@@ -213,7 +229,7 @@
       .map((e) => e.count)
       .reduce((p, n) => p + n);
     status.forEach((e) => {
-      let { count, box } = e;
+      let { count, box, blocked } = e;
       if (count != box.count) {
         box.geometry?.dispose();
         if (count > 0) {
@@ -225,11 +241,28 @@
           box.position.y = count / 20;
           box.visible = true;
         } else {
-          box.visible = false;
+          box.visible = blocked;
         }
         box.count = count;
       }
+      if (blocked && box.children.length < 1) {
+        box.visible = true;
+        const barrier = new THREE.Mesh(
+          new THREE.BoxGeometry(0.8 * STEP, 2, 0.8 * STEP),
+          materialRed
+        );
+        box.add(barrier);
+        barrier.position.y = 1;
+      } else if (!blocked && box.children.length > 0) {
+        box.children.forEach(cleanItem);
+        box.remove(box.children[0]);
+        console.log(box.children, "gone");
+      }
     });
+  }
+
+  function cleanItem(mesh) {
+    mesh?.geometry.dispose();
   }
 
   function evolve() {
@@ -240,15 +273,25 @@
           let { i, j, count, box } = entry;
           for (let g = 0; g < count; g++) {
             if (Math.random() < timeStep / 200) {
-              entry.count =
+              const rightNeighbor = status.find(
+                (e) => e.i == i + 1 && e.j == j
+              );
+              const upNeighbor = status.find((e) => e.i == i && e.j == j + 1);
+              const updateAmount =
                 stopGo && i + j == 0
                   ? Math.max(entry.count - 1, 1)
                   : entry.count - 1;
-              if (Math.random() > 0.5) {
+              if (
+                rightNeighbor &&
+                !rightNeighbor.blocked &&
+                Math.random() > 0.5
+              ) {
                 // go up
-                status.find((e) => e.i == i + 1 && e.j == j).count++;
-              } else {
-                status.find((e) => e.i == i && e.j == j + 1).count++;
+                rightNeighbor.count++;
+                entry.count = updateAmount;
+              } else if (upNeighbor && !upNeighbor.blocked) {
+                upNeighbor.count++;
+                entry.count = updateAmount;
               }
             }
           }
@@ -314,9 +357,29 @@
       >
     </div>
   </div>
-  <button style="position: absolute; left: 0; bottom:0;" on:click={resetStatus}
-    >Reset</button
-  >;
+
+  <div class="blockBox">
+    <button on:click={resetStatus}>Reset</button>
+    <input type="number" min="1" max={totalSteps} bind:value={blockI} />
+    <input
+      type="number"
+      min="1"
+      max={totalSteps - blockI}
+      bind:value={blockJ}
+    />
+    <button
+      id="blockbutton"
+      on:click|preventDefault={() => {
+        const elem = status.find((e) => e.i == blockJ && e.j == blockI);
+        if (elem) {
+          elem.blocked = !elem.blocked;
+        } else {
+          blockWarn = "Not in range";
+          setTimeout(() => (blockWarn = ""), 1000);
+        }
+      }}>&PlusMinus;Block</button
+    > <span class="warn">{blockWarn}</span>
+  </div>
 </div>
 
 <style>
@@ -336,7 +399,6 @@
     top: 0px;
     left: 0px;
     display: flex;
-    justify-content: space-between;
     align-items: baseline;
     flex-direction: column;
   }
@@ -353,5 +415,26 @@
   button:active,
   .down {
     background-color: blueviolet;
+  }
+
+  .blockBox {
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    display: flex;
+    width: 400px;
+    justify-content: flex-start;
+    gap: 10px;
+  }
+  .warn {
+    font-size: large;
+    color: red;
+  }
+
+  #blockbutton {
+    background-color: maroon;
+  }
+  #blockbutton:active {
+    background-color: red;
   }
 </style>
