@@ -30,7 +30,7 @@
   let h = 600;
 
   // @ts-ignore
-  camera.position.set(4, 3, 14);
+  camera.position.set(-12, 7, 2);
 
   // const geometry = new THREE.BoxGeometry();
   const material = new THREE.MeshBasicMaterial({
@@ -164,6 +164,8 @@
   let totalSteps = 4;
   let timeStep = 20; // how oftern to update, in milliseconds
   let probUp = 0.5;
+  let scaleDownTotal = false;
+  let runningTotal = 0;
 
   /**
    * @typedef {Object} GridEntry
@@ -185,8 +187,12 @@
       scene.remove(e.box);
     });
     status = [];
+<<<<<<< HEAD
     blockI = 1;
     blockJ = 1;
+=======
+    runningTotal = 0;
+>>>>>>> c907a48 (Add scaling (broken))
     for (let i = 0; i <= totalSteps + 1; i++) {
       for (let j = 0; j + i <= totalSteps + 1; j++) {
         const count = 0;
@@ -227,26 +233,28 @@
   }
 
   function drawStatus() {
-    const total = status
-      .filter((e) => e.i + e.j == totalSteps + 1)
-      .map((e) => e.count)
-      .reduce((p, n) => p + n);
+    const totalScale =
+      scaleDownTotal && runningTotal > 0
+        ? (20 * (totalSteps + 2)) / runningTotal
+        : 1;
     status.forEach((e) => {
-      let { count, box, blocked } = e;
-      if (count != box.count) {
+      let { i, j, count, box, blocked } = e;
+      if (i + j < totalSteps + 1 && count != box.count) {
         box.geometry?.dispose();
         if (count > 0) {
-          box.geometry = new THREE.BoxGeometry(
-            0.8 * STEP,
-            count / 10,
-            0.8 * STEP
-          );
-          box.position.y = count / 20;
+          const height = count / 10;
+          box.geometry = new THREE.BoxGeometry(0.8 * STEP, height, 0.8 * STEP);
+          box.position.y = height / 2;
           box.visible = true;
         } else {
           box.visible = blocked;
         }
         box.count = count;
+      } else if (i + j == totalSteps + 1) {
+        const height = (totalScale * count) / 10;
+        box.geometry = new THREE.BoxGeometry(0.8 * STEP, height, 0.8 * STEP);
+        box.position.y = height / 2;
+        box.visible = count > 0;
       }
       if (blocked && box.children.length < 1) {
         box.visible = true;
@@ -276,6 +284,7 @@
           let { i, j, count, box } = entry;
           for (let g = 0; g < count; g++) {
             if (Math.random() < timeStep / 200) {
+              if (k == totalSteps) runningTotal += 1;
               const rightNeighbor = status.find(
                 (e) => e.i == i + 1 && e.j == j
               );
@@ -307,7 +316,8 @@
 
 <p>
   Ants move along a rectangular lattice by choosing only 'up' or 'right' with
-  probability <M>p</M> or <M>1 - p</M> at each step. Where do they end up after
+  probability <M>p</M> or <M>1 - p</M>, respectively, at each step. Where do
+  they end up after
   <M>n</M> steps?
 </p>
 
@@ -315,20 +325,30 @@
   <canvas bind:this={canvas} bind:clientWidth={w} bind:clientHeight={h}
   ></canvas>
   <div id="controls">
-    <label for="totalSteps"
-      >Steps:
-      <input
-        type="range"
-        name="totalSteps"
-        id="totalSteps"
-        bind:value={totalSteps}
-        on:input={resetStatus}
-        min="2"
-        step="1"
-        max="25"
-      />
-      {totalSteps + 1}
-    </label>
+    <div>
+      <label for="totalSteps"
+        >Steps:
+        <input
+          type="range"
+          name="totalSteps"
+          id="totalSteps"
+          bind:value={totalSteps}
+          on:input={resetStatus}
+          min="2"
+          step="1"
+          max="25"
+        />
+        {totalSteps + 1}
+      </label>&nbsp;
+      <label for="density">
+        rescale:<input
+          type="checkbox"
+          name="density"
+          id="densitycheckbox"
+          bind:checked={scaleDownTotal}
+        /></label
+      >
+    </div>
     <label for="probUp" style=""
       ><M>p</M>:
       <input
@@ -410,7 +430,7 @@
 <style>
   .container {
     position: relative;
-    height: 75vh;
+    height: 70vh;
     bottom: 5%;
   }
   canvas {
