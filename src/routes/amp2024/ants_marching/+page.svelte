@@ -1,6 +1,7 @@
 <script>
   // @ts-nocheck
   import M from '$lib/M.svelte';
+  import Block from './Block.svelte';
   import { onMount } from 'svelte';
   import * as THREE from 'three';
   import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
@@ -9,6 +10,7 @@
   let blockI = 2;
   let blockJ = 2;
   let blockWarn = '';
+  let blockBoxes = [];
   //scene stuff
 
   /**
@@ -198,23 +200,22 @@
         const count = 0;
         const blocked = false;
         const box = new THREE.Mesh(
-          count == 0
-            ? undefined
-            : new THREE.BoxGeometry(0.8 * STEP, count, 0.8 * STEP),
+          new THREE.BoxGeometry(0.8 * STEP, 1, 0.8 * STEP),
           i + j == totalSteps + 1 ? materialBlue : materialBlack
         );
 
         status.push({
           i,
           j,
-          count,
+          count: 0,
           box,
           blocked,
         });
         box.position.x = i * STEP + STEP / 2;
         box.position.z = j * STEP + STEP / 2;
         box.position.y = count / 2;
-        box.count = count;
+        box.count = 0;
+        box.visible = count > 0;
         scene.add(box);
       }
     }
@@ -232,6 +233,26 @@
     );
   }
 
+  /**
+   *
+   * @param geo {THREE.BufferGeometry}
+   * @param ht {number}
+   */
+  function reHeightify(geo, ht) {
+    const pos = geo.getAttribute('position');
+    // console.log(ht, geo, 'Geo', pos);
+
+    if (pos) {
+      for (let index = 1; index < pos.array.length; index += 3) {
+        if (pos.array[index] == 0) console.log('Got a zerro.');
+        pos.array[index] = (Math.sign(pos.array[index]) * ht) / 2;
+        // console.log(pos.array[index]);
+      }
+      geo.setAttribute('position', pos);
+      geo.attributes.position.needsUpdate = true;
+    }
+  }
+
   function drawStatus() {
     const totalScale =
       scaleDownTotal && runningTotal > 0
@@ -240,19 +261,23 @@
     status.forEach((e) => {
       let { i, j, count, box, blocked } = e;
       if (i + j < totalSteps + 1 && count != box.count) {
-        box.geometry?.dispose();
-        if (count > 0) {
-          const height = count / 10;
-          box.geometry = new THREE.BoxGeometry(0.8 * STEP, height, 0.8 * STEP);
-          box.position.y = height / 2;
+        const height = count / 10;
+        if (height > 0) {
+          reHeightify(box.geometry, height);
+
           box.visible = true;
         } else {
           box.visible = blocked;
         }
+        // }
+        box.position.y = height / 2;
         box.count = count;
       } else if (i + j == totalSteps + 1) {
         const height = (totalScale * count) / 10;
-        box.geometry = new THREE.BoxGeometry(0.8 * STEP, height, 0.8 * STEP);
+        if ((height != box.height || scaleDownTotal) && height > 0) {
+          reHeightify(box.geometry, height);
+          box.height = height;
+        }
         box.position.y = height / 2;
         box.visible = count > 0;
       }
@@ -267,7 +292,7 @@
       } else if (!blocked && box.children.length > 0) {
         box.children.forEach(cleanItem);
         box.remove(box.children[0]);
-        console.log(box.children, 'gone');
+        box.visible = count > 0;
       }
     });
   }
@@ -315,7 +340,7 @@
 <h1>Ants Marching</h1>
 
 <p>
-  Ants move along a rectangular lattice by choosing only 'up' or 'right' with
+  Ants move along a rectangular lattice by choosing only 'right' or 'up' with
   probability <M>p</M> or <M>1 - p</M>, respectively, at each step. Where do
   they end up after
   <M>n</M> steps?
@@ -418,6 +443,12 @@
         const elem = status.find((e) => e.i == blockJ && e.j == blockI);
         if (elem) {
           elem.blocked = !elem.blocked;
+          if (elem.blocked) blockBoxes = [...blockBoxes, [blockI, blockJ]];
+          else {
+            blockBoxes = blockBoxes.filter(
+              (v) => v[0] != blockI || v[1] != blockJ
+            );
+          }
         } else {
           blockWarn = 'Not in range';
           setTimeout(() => (blockWarn = ''), 1000);
@@ -426,6 +457,12 @@
     > <span class="warn">{blockWarn}</span>
   </div>
 </div>
+<div style="margin-top: 5px"></div>
+<span class="boxholder">
+  {#each blockBoxes as [i, j]}
+    <Block {i} {j} bind:status bind:blockBoxes></Block>
+  {/each}
+</span>
 
 <style>
   .container {
@@ -485,5 +522,9 @@
   label {
     display: inline-flex;
     align-items: center;
+  }
+  .boxholder {
+    display: inline-flex;
+    align-items: baseline;
   }
 </style>
