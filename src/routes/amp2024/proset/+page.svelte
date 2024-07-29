@@ -3,9 +3,9 @@
 
     import Card from './Card.svelte';
     import { flip } from 'svelte/animate';
-    import { div } from 'three/examples/jsm/nodes/Nodes.js';
 
     let winner = false;
+    let showStanding = false;
 
     /**
      * @typedef {Object} ProSet
@@ -23,15 +23,50 @@
     const score = tweened(0);
 
     function reset() {
+        status = status.filter((e) => e.num >= 0);
         while (status.length < 7) {
             const num = Math.floor(Math.random() * 64);
             if (!status.find((e) => e.num == num)) {
-                status = [...status, { num, selected: false }];
+                status.push({ num, selected: false });
             }
         }
+        status = [
+            ...status.slice(0, 2),
+            { num: -1, selected: false },
+            ...status.slice(2, 5),
+            { num: -2, selected: false },
+            ...status.slice(5),
+        ];
     }
 
     reset();
+
+    $: standingCardNo = status.filter((e) => e.selected)
+        ? status
+              .filter((e) => e.selected)
+              .map((e) => e.num)
+              .reduce((p, c) => p ^ c, 0)
+        : 0;
+
+    function cheat() {
+        for (let i = 127; i > 0; i--) {
+            const v = String(i.toString(2)).padStart(7, '0');
+            const cards = status.filter((e) => e.num >= 0);
+            const pick = cards.filter((e, j) => v[j] == '1');
+            if (isSet(pick)) {
+                pick.forEach((e) => {
+                    e.selected = true;
+                });
+                cards
+                    .filter((e, j) => v[j] == '0')
+                    .forEach((e) => {
+                        e.selected = false;
+                    });
+                reset();
+                return;
+            }
+        }
+    }
 
     /**
      *
@@ -41,24 +76,28 @@
     function isSet(group) {
         console.log(
             group.map((e) => e.num),
-            group.map((e) => e.num).reduce((p, c) => p ^ c),
+            group.map((e) => e.num).reduce((p, c) => p ^ c, 0),
         );
-        return group.map((e) => e.num).reduce((p, c) => p ^ c) == 0;
+        return group.map((e) => e.num).reduce((p, c) => p ^ c, 0) == 0;
     }
 </script>
 
-<div class="field">
-    {#each status as { num, selected }, i}
-        {#if i == 2 || i == 5}
-            <div class="break"></div>
-        {/if}
+<h1>ProSet</h1>
+<p>
+    Select a subset of the cards presented such that each color is present an
+    even number of times. Higher scores for larger sets.
+</p>
 
-        <Card {num} bind:selected></Card>
+<div class="field">
+    {#each status as { num, selected }, i (num)}
+        <div animate:flip={{ duration: 200 }} class:break={num < 0}>
+            <Card {num} bind:selected></Card>
+        </div>
     {/each}
 </div>
 <div class="field">
     <button
-        class="endthing"
+        class="endthing submit"
         on:click={() => {
             const sel = status.filter((e) => e.selected);
             if (isSet(sel)) {
@@ -69,19 +108,31 @@
                 displayString = 'You are Pro Set.';
             } else {
                 winner = false;
-                displayString = 'You are No Set';
-            }
-            setTimeout(() => {
-                displayString = '';
+                displayString = 'You are cooked';
                 status.forEach((e) => {
                     e.selected = false;
                 });
+                reset();
+            }
+            setTimeout(() => {
+                displayString = '';
             }, 1500);
         }}>Submit</button
     > <span class="score endthing">Score: {Math.round($score)}</span>
+    <button class="endthing cheat" on:click={cheat}>Cheat</button>
 </div>
 
-<div id="dspStr" class:winner>{displayString}</div>
+<div class="field standing">
+    <label for="standbox"
+        >Guide: <input type="checkbox" bind:checked={showStanding} /></label
+    >
+    {#if showStanding}
+        <Card num={standingCardNo}></Card>
+    {/if}
+    <div id="dspStr" class:winner>
+        {displayString}
+    </div>
+</div>
 
 <style>
     .field {
@@ -91,6 +142,7 @@
         justify-content: center;
         row-gap: 2px;
         flex-wrap: wrap;
+        align-items: center;
     }
 
     .break {
@@ -112,10 +164,20 @@
         background-color: lightgray;
         color: darkgrey;
     }
+    .endthing {
+        margin-top: 10px;
+        flex: 1 1 50%;
+        text-align: center;
+    }
     .score {
         font-size: x-large;
         font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande',
             'Lucida Sans', Arial, sans-serif;
+        flex: 1 1 20%;
+    }
+
+    .cheat {
+        flex: 1 1 20%;
     }
 
     #dspStr {
@@ -126,9 +188,8 @@
         font-size: xx-large;
         color: blueviolet;
     }
-    .endthing {
-        margin-top: 10px;
-        flex: 1 1 50%;
-        text-align: center;
+    .standing {
+        align-items: start;
+        justify-content: flex-start;
     }
 </style>
