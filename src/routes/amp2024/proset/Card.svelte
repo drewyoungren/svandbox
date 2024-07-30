@@ -18,7 +18,7 @@
         class:selected
         class:divider={num < 0}
         in:fly|global={{ y: 200, delay: 200, duration: 200 }}
-        out:fly|global={{ x: 200, duration: 200 }}
+        out:fly|global={{ y: 200, duration: 200 }}
         on:click={() => {
             selected = !selected;
         }}
