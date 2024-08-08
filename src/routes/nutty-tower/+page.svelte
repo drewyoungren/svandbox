@@ -116,17 +116,6 @@
 
                 leftoverBox.position.copy(currentBox.position);
 
-                console.log(
-                    'xz lag',
-                    ww,
-                    xz,
-                    status.x[1] - status.x[0],
-                    status.z[1] - status.z[0] - ww,
-                    '\n',
-                    status.x[1] - status.x[0] - ww,
-                    status.z[1] - status.z[0],
-                );
-
                 leftoverBox.geometry =
                     xz == 'x'
                         ? new THREE.BoxGeometry(
@@ -289,15 +278,21 @@
     });
 </script>
 
-<canvas bind:this={canvas} bind:clientHeight={h} bind:clientWidth={w}></canvas>
+<canvas bind:this={canvas} on:pointerdown={levelUp}></canvas>
 
-<h1 style="position: absolute; color: white; left: 10px; top: 10px;">
-    {hello}
-    {tower.length > 1 ? `${50 - tower.length + 1} levels to go` : ''}
-</h1>
+<div class="banner">
+    <div>
+        {hello}
+    </div>
+    {#if tower.length > 1}
+        <div id="counter">
+            {50 - tower.length + 1}
+        </div>
+        <div>levels to go</div>
+    {/if}
+</div>
 
 <div id="level">
-    <button on:pointerdown={levelUp}>Level up</button>
     <button
         on:click={() => {
             hello = '';
@@ -331,5 +326,29 @@
         position: absolute;
         bottom: 5px;
         left: 5px;
+    }
+
+    h1 {
+        font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande',
+            'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+    }
+
+    .banner {
+        position: absolute;
+        width: 100vw;
+        height: 10vh;
+        top: 10px;
+        left: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        color: white;
+        justify-content: space-between;
+        user-select: none;
+    }
+
+    #counter {
+        font-size: 4rem;
+        font-weight: bold;
     }
 </style>
