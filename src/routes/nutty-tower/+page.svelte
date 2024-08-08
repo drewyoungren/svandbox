@@ -2,6 +2,7 @@
     import { onMount } from 'svelte';
     import { tweened } from 'svelte/motion';
     import * as THREE from 'three';
+    import { ThreeMFLoader } from 'three/examples/jsm/Addons.js';
 
     let hello = '';
 
@@ -44,7 +45,10 @@
         new THREE.BoxGeometry(1, 0.5, 1),
         new THREE.MeshPhongMaterial({ color: 0xffaa88 }),
     );
-    const lineMaterial = new THREE.LineBasicMaterial({ color: 0xffffff });
+    const lineMaterial = new THREE.LineBasicMaterial({
+        color: 0xffffff,
+        depthTest: true,
+    });
     const boEdges = new THREE.LineSegments(
         new THREE.EdgesGeometry(box.geometry),
         lineMaterial,
@@ -53,8 +57,9 @@
     box.position.x = 0.5;
     box.position.z = 0.5;
     box.position.y = 0.25;
-    box.add(boEdges);
+
     scene.add(box);
+    box.add(boEdges);
 
     let tower = [box];
     $: currentBox = tower[tower.length - 1];
@@ -66,7 +71,8 @@
     leftoverBox.add(new THREE.LineSegments());
     scene.add(leftoverBox);
 
-    const camera = new THREE.PerspectiveCamera(75, 2, 0.1, 0);
+    const camera = new THREE.PerspectiveCamera(75, 2, 0.1, 10);
+    // const camera = new THREE.OrthographicCamera();
 
     let level = tweened(1);
 
@@ -208,6 +214,13 @@
                         : zx == 'z'
                           ? -1
                           : 1);
+                currentBox.position[zx] +=
+                    speed *
+                    t *
+                    (currentBox.position[zx] >
+                    (status[zx][1] + status[zx][0]) / 2
+                        ? 1
+                        : -1);
             }
             // I am t
             // box.rotation.x += t;
