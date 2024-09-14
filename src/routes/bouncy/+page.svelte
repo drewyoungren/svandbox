@@ -25,11 +25,9 @@
             py: 100,
             vx: 125,
             vy: -100,
-            color: 'red',
         },
         {
-            color: 'blue',
-            r: 60 * Math.random(),
+            r: 60 * Math.random() + 10,
             px: 1000 * Math.random(),
             py: 1000 * Math.random(),
             vx: 400 * Math.random() - 200,
@@ -48,6 +46,17 @@
      */
 
     /**
+     * Set the color from the speed
+     * @param {Circ} c
+     */
+    function setColorFromSpeed(c) {
+        const speed = norm(c.vx, c.vy);
+        c.color = `hsl(${Math.round((speed / 400) * 270)}deg 100% 45%)`;
+    }
+
+    circs.forEach(setColorFromSpeed);
+
+    /**
      *
      * @param {Circ} c
      * @param {Circ} d
@@ -59,9 +68,6 @@
             ) <
             c.r + d.r
         ) {
-            c.color = `hsl(${Math.floor(360 * Math.random())}deg 100% 45%)`;
-            d.color = `hsl(${Math.floor(360 * Math.random())}deg 100% 45%)`;
-
             const w = [c.px - d.px, c.py - d.py];
             const u = normalize(w);
             const cu = c.vx * u[0] + c.vy * u[1];
@@ -80,6 +86,11 @@
 
             d.vx = d.vx - du * u[0] + dout * u[0];
             d.vy = d.vy - du * u[1] + dout * u[1];
+
+            // c.color = `hsl(${Math.floor(360 * Math.random())}deg 100% 45%)`;
+            // d.color = `hsl(${Math.floor(360 * Math.random())}deg 100% 45%)`;
+            setColorFromSpeed(c);
+            setColorFromSpeed(d);
 
             // debugger;
         }
@@ -212,5 +223,8 @@
     }
     svg {
         background-color: rgb(55, 55, 55);
+    }
+    button {
+        width: 3rem;
     }
 </style>
