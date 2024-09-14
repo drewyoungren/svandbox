@@ -59,8 +59,8 @@
             ) <
             c.r + d.r
         ) {
-            c.color = `rgb(${Math.floor(255 * Math.random())},${Math.floor(255 * Math.random())},${Math.floor(255 * Math.random())})`;
-            d.color = `rgb(${Math.floor(255 * Math.random())},${Math.floor(255 * Math.random())},${Math.floor(255 * Math.random())})`;
+            c.color = `hsl(${Math.floor(360 * Math.random())}deg 100% 45%)`;
+            d.color = `hsl(${Math.floor(360 * Math.random())}deg 100% 45%)`;
 
             const w = [c.px - d.px, c.py - d.py];
             const u = normalize(w);
@@ -94,12 +94,12 @@
         const py = (ch * e.clientY) / e.target.clientHeight;
 
         circs.push({
-            color: `rgb(${Math.floor(255 * Math.random())},${Math.floor(255 * Math.random())},${Math.floor(255 * Math.random())})`,
-            r: 50 * Math.random(),
+            color: `hsl(${Math.floor(360 * Math.random())}deg 100% 45%)`,
+            r: 15 + 60 * Math.random(),
             px,
             py,
-            vx: 400 * Math.random() - 200,
-            vy: 400 * Math.random() - 200,
+            vx: 350 * Math.random() - 175,
+            vy: 350 * Math.random() - 175,
         });
     };
 
@@ -180,8 +180,8 @@
 </div>
 
 <div id="controls">
-    <button on:click={() => (go = !go)}>{go ? 'Stodiv' : 'Go'}</button>
-    <label>
+    <button on:click={() => (go = !go)}>{go ? 'Stop' : ' Go '}</button>
+    <!-- <label>
         <input
             type="range"
             name="dimension"
@@ -192,7 +192,7 @@
             bind:value={dim}
         />
         {dim}
-    </label>
+    </label> -->
 </div>
 
 <style>
@@ -209,5 +209,8 @@
         top: 5px;
         left: 5px;
         position: absolute;
+    }
+    svg {
+        background-color: rgb(55, 55, 55);
     }
 </style>
