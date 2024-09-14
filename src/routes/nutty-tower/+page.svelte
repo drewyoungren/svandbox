@@ -71,7 +71,7 @@
     leftoverBox.add(new THREE.LineSegments());
     scene.add(leftoverBox);
 
-    const camera = new THREE.PerspectiveCamera(75, 2, 0.1, 10);
+    const camera = new THREE.PerspectiveCamera(75, 2, 0.1, 20);
     // const camera = new THREE.OrthographicCamera();
 
     let level = tweened(1);
@@ -178,7 +178,7 @@
     };
 
     $: {
-        camera.position.set(1.7, $level / 2 + 0.25, 1.5);
+        camera.position.set(2.1, $level / 2 + 0.25, 2);
         camera.lookAt(0.5, $level / 2 - 0.25, 0.5);
     }
     /**
@@ -210,6 +210,21 @@
                     (status[zx][1] + status[zx][0]) / 2
                         ? 1
                         : -1);
+                // console.log(
+                //     camera.position.x,
+                //     t,
+                //     12,
+                //     Math.min(camera.position.x + t, 12),
+                // );
+                camera.position.set(
+                    Math.min(camera.position.x + t, 9) * Math.cos(t) +
+                        Math.min(camera.position.z + t, 9) * Math.sin(t),
+                    Math.max(camera.position.y - t / 2, tower.length / 3),
+                    Math.min(camera.position.x + t, 9) * Math.sin(-t) +
+                        Math.min(camera.position.z + t, 9) * Math.cos(t),
+                );
+                // camera.position.z = Math.min(camera.position.z + t, 13);
+                camera.lookAt(0.5, tower.length / 3, 0.5);
             }
             // I am t
             // box.rotation.x += t;
@@ -278,7 +293,7 @@
     });
 </script>
 
-<canvas bind:this={canvas} on:pointerdown={levelUp}></canvas>
+<canvas bind:this={canvas} on:pointerdown|preventDefault={levelUp}></canvas>
 
 <div class="banner">
     <div>
