@@ -18,6 +18,9 @@
      */
     let req = 0;
 
+    /**
+     * @type Circ[]
+     */
     let circs = [
         {
             r: 50,
@@ -25,6 +28,7 @@
             py: 100,
             vx: 125,
             vy: -100,
+            color: 'red',
         },
         {
             r: 60 * Math.random() + 10,
@@ -32,6 +36,7 @@
             py: 1000 * Math.random(),
             vx: 400 * Math.random() - 200,
             vy: 400 * Math.random() - 200,
+            color: 'blue',
         },
     ];
 
