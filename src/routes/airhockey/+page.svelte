@@ -1,7 +1,6 @@
 <script>
     import { onMount } from 'svelte';
     import { proj, normalize, norm, headOnCollision } from '$lib/bouncy-utils';
-    import { BlurShaderUtils } from 'three/examples/jsm/Addons.js';
 
     let go = false;
     let dim = 2;
@@ -13,6 +12,7 @@
     let my = 250;
 
     let paddleOn = false;
+    let stopper = false;
 
     /**
      * @type Circ
@@ -134,12 +134,12 @@
     }
 
     /**
+     * add a random circle
      *
-     * @param e {MouseEvent}
      */
-    const addCirc = (e) => {
-        const px = (cw * e.clientX) / svg.clientWidth;
-        const py = (ch * e.clientY) / svg.clientHeight;
+    const addCirc = () => {
+        const px = cw * Math.random();
+        const py = ch * Math.random();
 
         circs.push({
             color: `hsl(${Math.floor(360 * Math.random())}deg 100% 45%)`,
@@ -165,8 +165,6 @@
         paddle.px = px;
         paddle.vy = (py - paddle.py) / dt;
         paddle.py = py;
-
-        console.log(e, 'Paddle me', px, py, paddle);
     };
 
     /**
@@ -176,11 +174,13 @@
     function onPaddleDown(e) {
         e.preventDefault();
 
-        console.log(e);
         lastMouseTime = e.timeStamp;
 
         const px = (cw * e.clientX) / svg.clientWidth;
         const py = (ch * e.clientY) / svg.clientHeight;
+
+        mx = px;
+        my = py;
 
         paddle.vx = 0;
         paddle.px = px;
@@ -189,7 +189,15 @@
 
         paddleOn = true;
 
-        svg.addEventListener('pointermove', onPaddleMove, true);
+        for (let c of circs) {
+            if (norm(c.px - px, c.py - py) < c.r + 30) {
+                c.vx = 0;
+                c.vy = 0;
+                stopper = true;
+            }
+        }
+
+        if (!stopper) svg.addEventListener('pointermove', onPaddleMove, true);
     }
 
     /**
@@ -200,6 +208,7 @@
         e.preventDefault();
         svg.removeEventListener('pointermove', onPaddleMove, true);
         paddleOn = false;
+        stopper = false;
     }
 
     /**
@@ -247,7 +256,8 @@
             }
         }
 
-        if (paddleOn) circs.forEach((c) => collide(c, paddle, true));
+        if (paddleOn && !stopper)
+            circs.forEach((c) => collide(c, paddle, true));
 
         circs = [...circs];
         if (go) {
@@ -263,7 +273,6 @@
         requestAnimationFrame(animate);
     }
     onMount(() => {
-        console.log(typeof svg);
         // svg.addEventListener('click', addCirc);
         svg.addEventListener('pointerdown', onPaddleDown, true);
         svg.addEventListener('pointerup', onPaddleUp, true);
@@ -285,6 +294,7 @@
         {/each}
         {#if paddleOn}
             <circle
+                id="paddleCircle"
                 fill="black"
                 cx={paddle.px}
                 cy={paddle.py}
@@ -296,7 +306,8 @@
 </div>
 
 <div id="controls">
-    <button on:click={() => (go = !go)}>{go ? 'Stop' : ' Go '}</button>
+    <button id="go" on:click={() => (go = !go)}>{go ? 'Stop' : ' Go '}</button>
+    <button on:click={addCirc}>&plus;</button>
     <!-- <label>
         <input
             type="range"
@@ -329,7 +340,10 @@
     svg {
         background-color: rgb(55, 55, 55);
     }
-    button {
+    button#go {
         width: 3rem;
+    }
+    #paddleCircle {
+        cursor: none;
     }
 </style>
