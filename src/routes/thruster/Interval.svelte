@@ -16,6 +16,15 @@
         <option value={'o'}><b>0</b></option>
     </select>
     for <em>t</em> ≤
-    <input type="number" name="upper" id="upper" bind:value={upper} />
-    <button on:click={() => dispatch('deleteme')}>X</button>
+    <input
+        type="number"
+        name="upper"
+        id="upper"
+        value={upper}
+        on:change={(e) => {
+            console.log(e);
+            upper = +e.target.value;
+        }}
+    />
+    <button on:click={() => dispatch('deleteme')}>&times;</button>
 </div>
