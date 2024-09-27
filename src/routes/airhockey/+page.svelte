@@ -19,7 +19,7 @@
      */
     let paddle = {
         color: 'black',
-        r: 100,
+        r: 70,
         px: 250,
         py: 250,
         vx: 0,
