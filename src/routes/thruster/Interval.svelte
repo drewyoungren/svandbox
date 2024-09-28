@@ -9,11 +9,11 @@
 
 <div class="piecewise-item">
     <select name="acc" id="accselect" bind:value={acc} class="select">
-        <option value={'e'}>i</option>
-        <option value={'w'}>-i</option>
-        <option value={'n'}>j</option>
-        <option value={'s'}>-j</option>
-        <option value={'o'}>0</option>
+        <option value={'e'}>&langle;1, 0&rangle;</option>
+        <option value={'w'}>&langle;-1, 0&rangle;</option>
+        <option value={'n'}>&langle;0, 1&rangle;</option>
+        <option value={'s'}>&langle;0, -1&rangle;</option>
+        <option value={'o'}>&langle;0, 0&rangle;</option>
     </select>
 
     <span class="text">for <em>t</em> ≤</span>
@@ -59,7 +59,7 @@
     }
 
     .delete-btn {
-        padding: 5px 10px;
+        padding: 2px 5px;
         background-color: #ff4d4d;
         color: white;
         border: none;

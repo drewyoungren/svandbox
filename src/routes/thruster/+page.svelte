@@ -7,6 +7,7 @@
     let clock = 0;
     let pos = { x: 1, y: 1, vx: 0, vy: 0, ax: 1, ay: 0 };
     let dPath = 'M 10 290 ';
+    let endMessage = '';
 
     /**
      * @typedef {'path'|'vel'|'acc'} ShowOpt
@@ -91,6 +92,40 @@
     }
 
     /**
+     * Finds the y-coord of the line through (x1,y1) and (x2,y2) at x = lev
+     * @param {number} x1
+     * @param {number} y1
+     * @param {number} x2
+     * @param {number} y2
+     * @param {number} lev
+     */
+    function crossing(x1, y1, x2, y2, lev) {
+        return y1 + ((y2 - y1) * (lev - x1)) / (x2 - x1);
+    }
+
+    /**
+     * Detect win or loss
+     * @param {number} x0
+     * @param {number} y0
+     * @param {number} x
+     * @param {number} y
+     * @returns number
+     */
+    function isFinished(x0, y0, x, y) {
+        if (y >= 30 || y <= 0 || x <= 0) return -1;
+        if (x >= 50 && x0 < 50) {
+            const ylev = crossing(x0, y0, x, y, 50);
+            if (13 <= ylev && ylev <= 17) {
+                return 1;
+            } else {
+                return -1;
+            }
+        } else {
+            return 0;
+        }
+    }
+
+    /**
      *
      * @param {number} t
      */
@@ -164,6 +199,16 @@
             pos.vy = vy + ay * dt;
             pos.ax = ax;
             pos.ay = ay;
+            const status = isFinished(x, y, pos.x, pos.y);
+            if (status > 0) {
+                go = false;
+                last = 0;
+                endMessage = 'You ESCAPED in ';
+            } else if (status < 0) {
+                go = false;
+                last = 0;
+                endMessage = 'You CRASHED! ';
+            }
         } else {
             go = false;
             last = 0;
@@ -197,11 +242,18 @@
 <div id="playingfield">
     <svg id="svg" viewBox="0 0 550 300">
         <rect
-            rx="0"
-            ry="0"
+            x="0"
+            y="0"
             width="500"
             height="300"
             fill="rgba(200, 200, 255, 0.5)"
+        />
+        <rect
+            x="500"
+            y="0"
+            width="50"
+            height="300"
+            fill="rgba(200, 255, 200, 0.5)"
         />
         <!-- Define the arrow marker -->
         <defs>
@@ -269,9 +321,12 @@
     </svg>
 </div>
 
-<!-- The clock display -->
 <div id="controlbox">
     <div>
+        <!-- The clock display -->
+        <!-- {#if endMessage} -->
+        <h3 style="color: #aa1111;">{endMessage}</h3>
+        <!-- {/if} -->
         <h1><span class="number-container">{clock.toFixed(2)}</span></h1>
         <h3>
             x: <span class="number-container">{pos.x.toFixed(3)}</span>, y:
@@ -320,10 +375,7 @@
     </div>
     <div id="accformula">
         <div class="piecewise-wrapper">
-            <div
-                class="piecewise-brace"
-                style="--brace-height: {braceHeight}px;"
-            >
+            <div class="piecewise-brace" style="--brace-height: {braceHeight};">
                 {#each sortedIntervals as { id, acc, upper } (id)}
                     <div animate:flip>
                         <Interval
@@ -416,11 +468,14 @@
 
     .piecewise-brace::before {
         content: '{';
-        font-size: calc(var(--brace-height) / 1); /* Dynamic font size */
+        font-size: 2rem;
         position: absolute;
         left: -20px;
-        top: 0;
+        top: -5px;
         font-weight: bold;
         line-height: 1; /*Prevents vertical stretching of the brace */
+        display: block;
+        transform-origin: top left;
+        transform: scaleY(calc(var(--brace-height) / 30));
     }
 </style>
