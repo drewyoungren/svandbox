@@ -117,7 +117,7 @@
      */
     function isFinished(x0, y0, x, y) {
         if (y >= 30 || y <= 0 || x <= 0) {
-            console.log('topleftright');
+            // console.log('topleftright');
             return 'lose';
         }
         if (x >= 50 && x0 < 50) {
@@ -125,12 +125,12 @@
             if (13 <= ylev && ylev <= 17) {
                 return 'win';
             } else {
-                console.log('endline');
+                // console.log('endline');
                 return 'lose';
             }
         } else if ((x >= 25 && 25 >= x0) || (x0 >= 25 && 25 >= x)) {
             const ylev = crossing(x0, y0, x, y, 25);
-            console.log('first barrier', x, x0, ylev);
+            // console.log('first barrier', x, x0, ylev);
             if (ylev <= 22.5) {
                 return 'lose';
             } else {
@@ -138,7 +138,7 @@
             }
         } else if ((x >= 37.5 && x0 < 37.5) || (x0 >= 37.5 && x < 37.5)) {
             const ylev = crossing(x0, y0, x, y, 37.5);
-            console.log('second barrier', x, x0, ylev);
+            // console.log('second barrier', x, x0, ylev);
             if (ylev >= 7.5) {
                 return 'lose';
             } else {
@@ -164,7 +164,7 @@
 
     function serialize() {
         const outString = JSON.stringify(intervals);
-        console.log(btoa(outString));
+        // console.log(btoa(outString));
         window.location.search = btoa(outString);
     }
 
@@ -251,7 +251,7 @@
         const search = window.location.search.slice(1);
         if (search) {
             try {
-                console.log(search, atob(search));
+                // console.log(search, atob(search));
                 intervals = JSON.parse(atob(search));
             } catch (error) {
                 console.log(error);
@@ -353,7 +353,6 @@
             y={300 - pos.y * 10 - 12.5}
             width="25"
             height="25"
-            preserveAspectRatio="true"
             transform={`rotate(${(Math.atan2(pos.vx, pos.vy) * 180) / Math.PI} ${10 * pos.x} ${300 - 10 * pos.y})`}
         />
         <!-- <circle cx={pos.x * 10} cy={300 - pos.y * 10} fill="red" r="5" /> -->
@@ -391,7 +390,7 @@
         <h1>
             <span class="number-container">{clock.toFixed(2)}s</span>
             <span
-                style={`color: ${endMessage == 'WIN!' ? '#11aa11' : '#aa1111'}`}
+                style={`color: ${endMessage == 'ESCAPE!' ? '#11aa11' : '#aa1111'}`}
                 >{endMessage}</span
             >
         </h1>
