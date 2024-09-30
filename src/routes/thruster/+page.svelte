@@ -1,4 +1,6 @@
 <script>
+    // Solution: W3siaWQiOiIyNjQyMmI0Yy03MjU2LTQ3ZTUtYmVkYi1jNTQ5MmY3YmI0N2QiLCJhY2MiOiJlIiwidXBwZXIiOjIuNX0seyJpZCI6ImFmZTIyMmYzLWYyMDItNGZkZi05NjQwLTAxNjg0OWQ2NGFiYyIsImFjYyI6Im4iLCJ1cHBlciI6N30seyJpZCI6IjdiZTI4OWUzLWM5MzctNDg3MC1iOTQzLWIzMTg3MWRmYmE5MiIsImFjYyI6InciLCJ1cHBlciI6Ny41fSx7ImlkIjoiMTkyZDlhZGYtZmY3OS00OTQ0LThlZDEtMzgyOGQzMWVmMWI0IiwiYWNjIjoicyIsInVwcGVyIjoxNX0seyJpZCI6ImY4NDMzYmE4LWFmOWMtNDExYy05Yjk1LTEyNmUwZDg2YmE2NiIsImFjYyI6InciLCJ1cHBlciI6MTZ9LHsiaWQiOiI3ZTc0OTI5OS1mYzRhLTQzYjctOTYzOS0zYTcxNzM5ZDhmOTMiLCJhY2MiOiJvIiwidXBwZXIiOjE4fSx7ImlkIjoiYmE4OTcwNDktYWU1ZS00NDU0LWEwNDQtOTk3ZWUxNzFhYjI0IiwiYWNjIjoibiIsInVwcGVyIjoyM30seyJpZCI6IjM0ZjY4YzVlLTA1ZmMtNDdiOS05YzViLTYwZmNiMmVlMGRlMCIsImFjYyI6ImUiLCJ1cHBlciI6Mjd9XQ
+
     import Interval from './Interval.svelte';
     import { flip } from 'svelte/animate';
     import { onMount } from 'svelte';
@@ -6,6 +8,8 @@
     let go = false;
     let clock = 0;
     let pos = { x: 1, y: 1, vx: 0, vy: 0, ax: 1, ay: 0 };
+    let lastX = 1;
+    let lastY = 1;
     let dPath = 'M 10 290 ';
     let endMessage = '';
 
@@ -60,7 +64,7 @@
     /**
      * @type Array<ShowOpt>
      */
-    const OPTS = ['path', 'vel', 'acc'];
+    const OPTS = ['vel', 'acc'];
 
     /**
      * @type number
@@ -109,19 +113,39 @@
      * @param {number} y0
      * @param {number} x
      * @param {number} y
-     * @returns number
+     * @returns string
      */
     function isFinished(x0, y0, x, y) {
-        if (y >= 30 || y <= 0 || x <= 0) return -1;
+        if (y >= 30 || y <= 0 || x <= 0) {
+            console.log('topleftright');
+            return 'lose';
+        }
         if (x >= 50 && x0 < 50) {
             const ylev = crossing(x0, y0, x, y, 50);
             if (13 <= ylev && ylev <= 17) {
-                return 1;
+                return 'win';
             } else {
-                return -1;
+                console.log('endline');
+                return 'lose';
+            }
+        } else if ((x >= 25 && 25 >= x0) || (x0 >= 25 && 25 >= x)) {
+            const ylev = crossing(x0, y0, x, y, 25);
+            console.log('first barrier', x, x0, ylev);
+            if (ylev <= 22.5) {
+                return 'lose';
+            } else {
+                return '';
+            }
+        } else if ((x >= 37.5 && x0 < 37.5) || (x0 >= 37.5 && x < 37.5)) {
+            const ylev = crossing(x0, y0, x, y, 37.5);
+            console.log('second barrier', x, x0, ylev);
+            if (ylev >= 7.5) {
+                return 'lose';
+            } else {
+                return '';
             }
         } else {
-            return 0;
+            return '';
         }
     }
 
@@ -199,15 +223,19 @@
             pos.vy = vy + ay * dt;
             pos.ax = ax;
             pos.ay = ay;
-            const status = isFinished(x, y, pos.x, pos.y);
-            if (status > 0) {
+            const status = isFinished(lastX, lastY, pos.x, pos.y);
+            lastX = pos.x;
+            lastY = pos.y;
+            if (status == 'win') {
                 go = false;
                 last = 0;
-                endMessage = 'You ESCAPED in ';
-            } else if (status < 0) {
+                endMessage = 'WIN!';
+            } else if (status == 'lose') {
                 go = false;
                 last = 0;
-                endMessage = 'You CRASHED! ';
+                endMessage = 'CRASH!';
+            } else {
+                endMessage = '';
             }
         } else {
             go = false;
@@ -229,14 +257,29 @@
                 console.log(error);
             }
         }
+        document.addEventListener('keypress', (e) => {
+            if (e.key === 'p') {
+                showOpts.path = !showOpts.path;
+            }
+        });
     });
 </script>
 
 <div id="intro">
     <h1>Rocket Escape</h1>
     <p>
-        Pilot the rocket out of the maze-thing. You can set its acceleration in
-        one of the cardinal directions (or 0).
+        Pilot the rocket out of the maze-thing without crashing. You can set its
+        acceleration vector as one of &pm;<b>i</b>, &pm;<b>j</b>, or <b>0</b> at
+        time intervals of your choosing (for any <em>t</em>, the first valid
+        rule is applied).
+    </p>
+    <p>
+        Try to escape as quickly as possible. To submit your time, click "Save
+        in URL" below and copy the address into <a
+            href="https://forms.gle/Jcf7Jv7NKhzVr4NK6"
+            target="_blank"
+            rel="noopener noreferrer">this form</a
+        >.
     </p>
 </div>
 <div id="playingfield">
@@ -266,7 +309,7 @@
                 orient="auto"
                 fill="currentColor"
             >
-                <polygon points="0 0, 5 1.75, 0 3.5" />
+                <polygon points="0 0, 5 1.5, 0 3" />
             </marker>
         </defs>
 
@@ -277,9 +320,10 @@
                 y1={300 - pos.y * 10}
                 x2={pos.x * 10 + pos.ax * 10}
                 y2={300 - pos.y * 10 - pos.ay * 10}
-                stroke="black"
+                stroke="red"
                 stroke-width="2"
                 marker-end="url(#arrowhead)"
+                fill="red"
             />
         {/if}
         {#if showOpts.vel}
@@ -304,11 +348,12 @@
             />
         {/if}
         <image
-            href="/rocket.png"
-            x={pos.x * 10 - 10}
-            y={300 - pos.y * 10 - 10}
-            width="20"
-            height="20"
+            href={'/rocketwfire.png'}
+            x={pos.x * 10 - 12.5}
+            y={300 - pos.y * 10 - 12.5}
+            width="25"
+            height="25"
+            preserveAspectRatio="true"
             transform={`rotate(${(Math.atan2(pos.vx, pos.vy) * 180) / Math.PI} ${10 * pos.x} ${300 - 10 * pos.y})`}
         />
         <!-- <circle cx={pos.x * 10} cy={300 - pos.y * 10} fill="red" r="5" /> -->
@@ -318,37 +363,42 @@
             stroke-width="3"
             fill="transparent"
         />
+        <line
+            x1="250"
+            y1="75"
+            x2="250"
+            y2="300"
+            stroke="black"
+            stroke-width="2"
+        />
+        <line
+            x1="375"
+            y1="0"
+            x2="375"
+            y2="225"
+            stroke="black"
+            stroke-width="2"
+        />
     </svg>
 </div>
 
 <div id="controlbox">
-    <div>
+    <div id="colbox">
         <!-- The clock display -->
         <!-- {#if endMessage} -->
-        <h3 style="color: #aa1111;">{endMessage}</h3>
+        <!-- <h3 style="color: #aa1111;">{endMessage}</h3> -->
         <!-- {/if} -->
-        <h1><span class="number-container">{clock.toFixed(2)}</span></h1>
+        <h1>
+            <span class="number-container">{clock.toFixed(2)}s</span>
+            <span
+                style={`color: ${endMessage == 'WIN!' ? '#11aa11' : '#aa1111'}`}
+                >{endMessage}</span
+            >
+        </h1>
         <h3>
             x: <span class="number-container">{pos.x.toFixed(3)}</span>, y:
             <span class="number-container">{pos.y.toFixed(3)}</span>
         </h3>
-        <button
-            on:click={() => {
-                go = !go;
-                last = 0;
-            }}
-            id="playbutton"
-            disabled={clock >= maxTime}
-        >
-            {go ? 'Pause' : 'Play'}
-        </button>
-        <button
-            on:click={() => {
-                go = false;
-                last = 0;
-                clock = 0;
-            }}>Reset</button
-        ><br />
         <input
             type="range"
             name="scrub"
@@ -359,6 +409,27 @@
             step="0.01"
             on:input={() => (last = 0)}
         />
+        <br />
+        <button
+            on:click={() => {
+                go = !go;
+                last = 0;
+            }}
+            id="playbutton"
+            disabled={endMessage.length > 0 || clock >= maxTime}
+        >
+            {go ? 'Pause' : 'Play'}
+        </button>
+        <button
+            on:click={() => {
+                go = false;
+                last = 0;
+                clock = 0;
+                endMessage = '';
+                lastX = 1;
+                lastY = 1;
+            }}>Reset</button
+        >
         <div class="controls">
             {#each OPTS as key}
                 <div>
@@ -375,17 +446,19 @@
     </div>
     <div id="accformula">
         <div class="piecewise-wrapper">
-            <div class="piecewise-brace" style="--brace-height: {braceHeight};">
-                {#each sortedIntervals as { id, acc, upper } (id)}
-                    <div animate:flip>
-                        <Interval
-                            bind:acc
-                            bind:upper
-                            on:deleteme={() => deleteMe(id)}
-                        />
-                    </div>
-                {/each}
-            </div>
+            {#each sortedIntervals as { id, acc, upper } (id)}
+                <div animate:flip>
+                    <Interval
+                        bind:acc
+                        bind:upper
+                        on:deleteme={() => {
+                            if (intervals.length > 1) {
+                                deleteMe(id);
+                            }
+                        }}
+                    />
+                </div>
+            {/each}
         </div>
         <div class="contols">
             <button
@@ -432,11 +505,16 @@
         width: 100vw;
         margin: 0 auto;
     }
+
+    #colbox {
+        width: 40%;
+    }
     #accformula {
         display: flex;
         flex-direction: column;
         justify-content: flex-start;
         gap: 5px;
+        width: 40%;
     }
     .number-container {
         display: inline-block;
@@ -446,7 +524,8 @@
     .controls {
         display: flex;
         flex-direction: row;
-        justify-content: space-around;
+        justify-content: flex-start;
+        gap: 26px;
     }
     #playingfield,
     svg {
@@ -455,27 +534,13 @@
     }
     .piecewise-wrapper {
         display: flex;
-        flex-direction: row;
+        flex-direction: column;
         align-items: flex-start;
     }
 
-    .piecewise-brace {
-        position: relative;
-        display: flex;
-        flex-direction: column;
-        width: 20px; /* Fixed width to contain the curly brace */
-    }
-
-    .piecewise-brace::before {
-        content: '{';
-        font-size: 2rem;
-        position: absolute;
-        left: -20px;
-        top: -5px;
-        font-weight: bold;
-        line-height: 1; /*Prevents vertical stretching of the brace */
-        display: block;
-        transform-origin: top left;
-        transform: scaleY(calc(var(--brace-height) / 30));
+    #intro {
+        max-width: 726px;
+        width: 100vw;
+        margin: 0 auto;
     }
 </style>
