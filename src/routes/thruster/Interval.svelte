@@ -4,6 +4,11 @@
     export let acc = 'e';
     export let upper = 1;
 
+    /**
+     * @type HTMLInputElement
+     */
+    let inputElement;
+
     const dispatch = createEventDispatcher();
 </script>
 
@@ -19,12 +24,13 @@
     <span class="text">for <em>t</em> ≤</span>
 
     <input
+        bind:this={inputElement}
         type="number"
         name="upper"
         id="upper"
         value={upper}
         on:change={(e) => {
-            upper = +e.target.value;
+            upper = +inputElement.value;
         }}
         class="input"
     />
