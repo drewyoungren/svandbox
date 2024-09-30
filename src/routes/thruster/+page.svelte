@@ -1,6 +1,8 @@
 <script>
     // Solution: W3siaWQiOiIyNjQyMmI0Yy03MjU2LTQ3ZTUtYmVkYi1jNTQ5MmY3YmI0N2QiLCJhY2MiOiJlIiwidXBwZXIiOjIuNX0seyJpZCI6ImFmZTIyMmYzLWYyMDItNGZkZi05NjQwLTAxNjg0OWQ2NGFiYyIsImFjYyI6Im4iLCJ1cHBlciI6N30seyJpZCI6IjdiZTI4OWUzLWM5MzctNDg3MC1iOTQzLWIzMTg3MWRmYmE5MiIsImFjYyI6InciLCJ1cHBlciI6Ny41fSx7ImlkIjoiMTkyZDlhZGYtZmY3OS00OTQ0LThlZDEtMzgyOGQzMWVmMWI0IiwiYWNjIjoicyIsInVwcGVyIjoxNX0seyJpZCI6ImY4NDMzYmE4LWFmOWMtNDExYy05Yjk1LTEyNmUwZDg2YmE2NiIsImFjYyI6InciLCJ1cHBlciI6MTZ9LHsiaWQiOiI3ZTc0OTI5OS1mYzRhLTQzYjctOTYzOS0zYTcxNzM5ZDhmOTMiLCJhY2MiOiJvIiwidXBwZXIiOjE4fSx7ImlkIjoiYmE4OTcwNDktYWU1ZS00NDU0LWEwNDQtOTk3ZWUxNzFhYjI0IiwiYWNjIjoibiIsInVwcGVyIjoyM30seyJpZCI6IjM0ZjY4YzVlLTA1ZmMtNDdiOS05YzViLTYwZmNiMmVlMGRlMCIsImFjYyI6ImUiLCJ1cHBlciI6Mjd9XQ
 
+    import { base } from '$app/paths';
+
     import Interval from './Interval.svelte';
     import { flip } from 'svelte/animate';
     import { onMount } from 'svelte';
@@ -348,7 +350,7 @@
             />
         {/if}
         <image
-            href={'/rocketwfire.png'}
+            href="{base}/rocketwfire.png"
             x={pos.x * 10 - 12.5}
             y={300 - pos.y * 10 - 12.5}
             width="25"
