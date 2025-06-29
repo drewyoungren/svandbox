@@ -30,6 +30,9 @@
         <li>
             <a href="wonka">Augustus and Wonka</a>
         </li>
+        <li>
+            <a href="pirate_booty">Pirate Booty</a>
+        </li>
     </ul>
 </section>
 
