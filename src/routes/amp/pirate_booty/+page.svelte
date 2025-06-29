@@ -119,7 +119,7 @@
         flex-direction: column;
     }
     svg {
-        width: 600px;
+        max-width: 600px;
         height: auto;
     }
 
