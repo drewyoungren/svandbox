@@ -89,8 +89,11 @@
     $effect(() => {
         for (const cam of COLORS) {
             const [p, h] = getPos(gameState, cam);
-            camels[cam].x.target = 25 * (p - startingSquare);
-            camels[cam].y.target = 150 - 20 * h;
+            camels[cam].x.target =
+                25 * (p - startingSquare) +
+                (p == 0 ? -COLORS.indexOf(cam) * 3 : 0);
+            camels[cam].y.target =
+                150 - 20 * h + (p == 0 ? COLORS.indexOf(cam) * 3 : 0);
         }
     });
 
@@ -113,7 +116,11 @@
 </p>
 
 <div class="maindisplay">
-    <svg version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 200">
+    <svg
+        version="1.1"
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="-10 0 310 200"
+    >
         {#each Object.entries(camels) as [cam, { x, y }]}
             <rect
                 x={x.current}
