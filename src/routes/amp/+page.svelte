@@ -41,5 +41,6 @@
     <ul>
         <li><a href="figgie_hands">Figgie starting odds</a></li>
         <li><a href="proset">ProSet</a></li>
+        <li><a href="dromedary_up">Dromedary Up!</a></li>
     </ul>
 </section>
