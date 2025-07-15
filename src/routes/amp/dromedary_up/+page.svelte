@@ -7,6 +7,8 @@
 
     let gameState = $state({ P: 0, Y: 0, R: 0, G: 0, B: 0 });
 
+    let prevState = $state({ P: 0, Y: 0, R: 0, G: 0, B: 0 });
+
     let pyramid = $state([]);
 
     let rolled = $state([]);
@@ -35,6 +37,11 @@
         return nums.length > 0 ? Math.min(...nums) : undefined;
     }
 
+    function maxFromMixedList(list) {
+        const nums = list.map((item) => Number(item)).filter((n) => !isNaN(n));
+        return nums.length > 0 ? Math.max(...nums) : undefined;
+    }
+
     function getPos(state, camel) {
         let ht = 0;
         let c = camel;
@@ -59,12 +66,22 @@
         const index = Math.floor(Math.random() * arr.length);
         return arr.splice(index, 1)[0];
     }
+    function rewind() {
+        gameState = { ...prevState };
+        pyramid = [...COLORS];
+        rolled = [];
+    }
 
     function reload() {
+        prevState = { ...gameState };
         pyramid = [...COLORS];
         rolled = [];
         startingSquare = minFromMixedList(Object.values(gameState));
+        lineStart.target = startingSquare;
+        winStats = { R: 0, Y: 0, P: 0, G: 0, B: 0 };
     }
+
+    let lineStart = new Tween(0);
 
     function roll() {
         const cam = popRandom(pyramid);
@@ -75,6 +92,11 @@
             rolled.push([cam, die]);
 
             gameState[cam] = getTopCamel(gameState, p + die);
+
+            if (pyramid.length == 0) {
+                const winner = getWinner(gameState)[0][2];
+                winStats[winner] += 1;
+            }
         }
     }
 
@@ -93,9 +115,26 @@
                 25 * (p - startingSquare) +
                 (p == 0 ? -COLORS.indexOf(cam) * 3 : 0);
             camels[cam].y.target =
-                150 - 20 * h + (p == 0 ? COLORS.indexOf(cam) * 3 : 0);
+                150 - 14 * h + (p == 0 ? COLORS.indexOf(cam) * 3 - 15 : 0);
         }
     });
+
+    function getWinner(state) {
+        const rank = [];
+        for (const c of COLORS) {
+            const [p, h] = getPos(state, c);
+            rank.push([p, h, c]);
+        }
+        return rank.sort((a, b) => b[0] - a[0] || b[1] - a[1]);
+    }
+
+    let winStats = $state({ R: 0, Y: 0, P: 0, G: 0, B: 0 });
+    let winRanks = $derived.by(() => {
+        const rank = Object.entries(winStats);
+        rank.sort((a, b) => b[1] - a[1]);
+        return rank;
+    });
+    let trials = $derived(winRanks.reduce((p, c) => p + c[1], 0));
 
     onMount(() => {
         reset();
@@ -119,28 +158,70 @@
     <svg
         version="1.1"
         xmlns="http://www.w3.org/2000/svg"
-        viewBox="-10 0 310 200"
+        viewBox="-10 -30 510 200"
     >
+        <defs>
+            <symbol id="camelSymbol" viewBox="0 0 21 21">
+                <polygon points="0,7 0,21 7,14 14,21 21,14 21,0 14,7 7,0" />
+            </symbol>
+        </defs>
+
+        <line
+            x1="0"
+            y1="157"
+            x2="410"
+            y2="157"
+            stroke="black"
+            stroke-width="2"
+            stroke-dasharray="23 2"
+            stroke-dashoffset={((25 * lineStart.current) % 25) + 1}
+        />
+
         {#each Object.entries(camels) as [cam, { x, y }]}
-            <rect
+            <use
+                href="#camelSymbol"
                 x={x.current}
                 y={y.current}
-                width="20"
-                height="20"
+                width="21"
+                height="21"
                 fill={camelColor[cam]}
+            ></use>
+        {/each}
+
+        <text
+            x={10}
+            y={170}
+            stroke="black"
+            text-anchor="middle"
+            font-size="10px">{startingSquare}</text
+        >
+
+        {#each winRanks as [c, r], i}
+            <rect
+                x={12 + 24 * i}
+                y={30 - (100 * r) / trials}
+                width="16"
+                height={(100 * r) / trials}
+                fill={camelColor[c]}
             ></rect>
         {/each}
 
-        <text x={10} y={170} stroke="black" text-anchor="middle"
-            >{startingSquare}</text
-        >
+        <line
+            x1="10"
+            y1="30"
+            x2="130"
+            y2="30"
+            stroke="black"
+            stroke-width="1"
+            stroke-dasharray="20 4"
+            stroke-dashoffset="0"
+        /><text x="70" y="40" font-size="8">1st place</text>
     </svg>
 
     <div>
         <button onclick={roll} disabled={pyramid.length == 0}> Roll! </button>
-        <button onclick={reload} disabled={pyramid.length > 0}>
-            Reload!
-        </button>
+        <button onclick={rewind} disabled={pyramid.length > 0}> &larr; </button>
+        <button onclick={reload} disabled={pyramid.length > 0}> &rarr; </button>
         <button onclick={reset}> Reset! </button>
     </div>
     <div class="displaybox">
@@ -149,6 +230,10 @@
                 {d}
             </div>
         {/each}
+    </div>
+
+    <div>
+        {Object.entries(winStats)}
     </div>
 </div>
 
@@ -162,7 +247,7 @@
         flex-direction: column;
     }
     svg {
-        max-width: 600px;
+        max-width: 800px;
         height: auto;
     }
 
